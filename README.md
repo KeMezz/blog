@@ -1,54 +1,21 @@
 <p align="center">
   <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
+    <img alt="box" src="https://cdn-icons-png.flaticon.com/512/685/685388.png" width="60" />
   </a>
 </p>
 <h1 align="center">
-  Gatsby minimal TypeScript starter
+  블로그 레퍼지토리 (개발 중)
 </h1>
 
-## 🚀 Quick start
+## 🤫 소개
 
-1.  **Create a Gatsby site.**
+저의 개발과 일상에 대한 기록을 담고 싶어서 제작한 블로그 레퍼지토리입니다. Gatsby.js, TypeScript, GraphQL, React, Tailwind CSS 등의 기술을 기반으로 작성되었으며, 부족한 부분은 많지만 직접 블로그를 만들고 싶으신 분들을 위해 참고가 되었으면 하여 소스코드를 공개합니다. 현재 개발 단계입니다.
 
-    Use the Gatsby CLI to create a new site, specifying the minimal TypeScript starter.
+## 🔧 사용한 개츠비 플러그인들
 
-    ```shell
-    # create a new Gatsby site using the minimal TypeScript starter
-    npm init gatsby
-    ```
+- gatsby-plugin-postcss
+- 추가 예정..
 
-2.  **Start developing.**
+## 🚀 배포
 
-    Navigate into your new site’s directory and start it up.
-
-    ```shell
-    cd my-gatsby-site/
-    npm run develop
-    ```
-
-3.  **Open the code and start customizing!**
-
-    Your site is now running at http://localhost:8000!
-
-    Edit `src/pages/index.tsx` to see your site update in real-time!
-
-4.  **Learn more**
-
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-## 🚀 Quick start (Gatsby Cloud)
-
-Deploy this starter with one click on [Gatsby Cloud](https://www.gatsbyjs.com/cloud/):
-
-[<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/gatsbyjs/gatsby-starter-minimal-ts)
+- netlify로 배포 예정
