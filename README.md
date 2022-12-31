@@ -11,10 +11,13 @@
 
 저의 개발과 일상에 대한 기록을 담고 싶어서 제작한 블로그 레포지토리입니다. Gatsby.js, TypeScript, GraphQL, React, Tailwind CSS 등의 기술을 기반으로 작성되었으며, 부족한 부분은 많지만 직접 블로그를 만들고 싶으신 분들을 위해 참고가 되었으면 하여 소스코드를 공개합니다. 현재 개발 단계입니다.
 
-## 🔧 사용한 개츠비 플러그인들
+## 🔧 주요 기술
 
-- gatsby-plugin-postcss
-- 추가 예정..
+- Gatsby.js
+- TypeScript
+- GraphQL
+- Tailwind CSS
+- utterances
 
 ## 🚀 배포
 
