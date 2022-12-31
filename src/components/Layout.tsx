@@ -11,7 +11,7 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
   return (
     <main>
-      <header className="w-full h-30 lg:h-20 bg-white dark:bg-zinc-800 dark:text-white border-b dark:border-gray-600">
+      <header className="w-full h-30 lg:h-20 bg-white dark:bg-zinc-900 dark:text-white border-b dark:border-gray-600">
         <div className="flex flex-col h-full lg:flex-row lg:px-8 lg:mx-auto lg:max-w-7xl">
           <div className="w-full h-20 lg:h-auto flex justify-center lg:justify-between items-center border-b dark:border-gray-600 lg:border-none">
             <h1 className="text-4xl font-extrabold mt-2">.cache</h1>
@@ -23,10 +23,10 @@ function Layout({ children }: LayoutProps) {
           </nav>
         </div>
       </header>
-      <section className="bg-gray-100 dark:bg-zinc-700 dark:text-white">
+      <section className="bg-gray-100 dark:bg-zinc-800 dark:text-white">
         <div className="max-w-7xl mx-auto px-6 ">{children}</div>
       </section>
-      <footer className="border-t dark:border-gray-600 py-8 bg-white dark:bg-zinc-800 dark:text-white">
+      <footer className="border-t dark:border-gray-600 py-8 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:max-w-7xl lg:mx-auto lg:px-8 gap-4 lg:gap-6">
           <h2 className="text-2xl font-bold lg:text-3xl">
             Hyeongjin Developer Blog
