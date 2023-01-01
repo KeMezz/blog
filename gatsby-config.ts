@@ -16,14 +16,15 @@ const config: GatsbyConfig = {
       resolve: `gatsby-omni-font-loader`,
       options: {
         enableListener: true,
-        preconnect: [
-          `https://fonts.googleapis.com`,
-          `https://fonts.gstatic.com`,
-        ],
+        preconnect: [`https://fonts.googleapis.com`],
         web: [
           {
-            name: `Noto Sans Korean`,
-            file: `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap`,
+            name: `IBM Plex Sans KR`,
+            file: `https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap`,
+          },
+          {
+            name: `Pacifico`,
+            file: `https://fonts.googleapis.com/css2?family=Pacifico&display=swap`,
           },
         ],
       },
