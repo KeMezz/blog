@@ -5,9 +5,7 @@ import Seo from "../components/Seo";
 const IndexPage = () => {
   return (
     <Layout>
-      <div className="flex justify-center items-center w-full h-56 text-4xl">
-        다람쥐 헌 쳇바퀴 타고파 hello world HELLO WORLD
-      </div>
+      <div className="h-96">모든 블로그 컨텐츠의 살짝씩 미리보기 제공</div>
     </Layout>
   );
 };
