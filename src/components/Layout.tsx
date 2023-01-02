@@ -20,7 +20,7 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
         <div className="flex flex-col h-full lg:flex-row lg:px-8 lg:mx-auto lg:max-w-7xl">
           <div className="w-full h-20 lg:h-auto flex justify-center lg:justify-between items-center lg:border-none">
             <Link to="/">
-              <h1 className="text-4xl font-extrabold font-['Pacifico']">
+              <h1 className="text-4xl font-extrabold font-['Pacifico'] antialiased">
                 .cache
               </h1>
             </Link>
@@ -54,7 +54,7 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
       </section>
       <footer className="py-8 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:max-w-7xl lg:mx-auto lg:px-8 gap-4 lg:gap-6">
-          <h2 className="text-2xl font-bold lg:text-3xl font-['Pacifico']">
+          <h2 className="text-2xl font-bold lg:text-3xl font-['Pacifico'] antialiased">
             Hyeongjin Developer Blog
           </h2>
           <p className="text-xs lg:text-sm">
