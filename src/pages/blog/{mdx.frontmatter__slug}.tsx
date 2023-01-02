@@ -1,7 +1,8 @@
-import { graphql } from "gatsby";
+import { graphql, Link } from "gatsby";
 import React, { ReactElement } from "react";
 import Layout from "../../components/Layout";
 import { FaRegCalendar } from "@react-icons/all-files/fa/FaRegCalendar";
+import Seo from "../../components/Seo";
 
 interface PostDetailProps {
   data: Queries.PostDetailQuery;
@@ -10,6 +11,7 @@ interface PostDetailProps {
 
 const PostDetail = ({ data, children }: PostDetailProps) => {
   const title = data.mdx?.frontmatter?.title;
+  console.log(data.mdx?.tableOfContents!.items);
   return (
     <Layout disablePaddings>
       <section className="pb-14">
@@ -25,23 +27,48 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
               </p>
             ))}
           </div>
-          {/* <br /> */}
-          {/* <h1 className="leading-snug">{title}</h1> */}
         </div>
-        <article className="bg-white dark:bg-zinc-900 p-6 py-10 lg:p-12 xl:rounded-xl">
-          <div className="mb-6">
-            <h1 className="border-b-2 pb-4 text-2xl font-semibold mb-4">
-              {title}
-            </h1>
-            <div className="flex items-center gap-2 text-gray-500">
-              <FaRegCalendar className="text-sm" />
-              <p className="text-xs">{data.mdx?.frontmatter?.date}</p>
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr,_300px] gap-6 items-start">
+          <article className="bg-white dark:bg-zinc-900 p-6 py-10 lg:p-12 xl:rounded-xl">
+            <div className="mb-6">
+              <h1 className="border-b-2 pb-4 text-2xl font-semibold mb-4">
+                {title}
+              </h1>
+              <div className="flex items-center gap-2 text-gray-500">
+                <FaRegCalendar className="text-sm" />
+                <p className="text-xs">{data.mdx?.frontmatter?.date}</p>
+              </div>
             </div>
+            <div className="prose prose-sm lg:prose-base prose-h1:text-3xl prose-h1:pt-8 prose-h1:mb-0 prose-h2:mt-10 max-w-none dark:prose-invert prose-headings:before:text-sm lg:prose-headings:before:text-lg prose-headings:before:text-zinc-200 dark:prose-headings:before:text-zinc-600 prose-headings:before:mr-2 prose-h1:before:content-['#'] prose-h2:before:content-['##'] prose-h3:before:content-['###'] prose-h4:before:content-['####'] prose-h5:before:content-['#####'] prose-h6:before:content-['######']">
+              {children}
+            </div>
+          </article>
+          <div className="p-8 bg-white dark:bg-zinc-900 hidden xl:flex rounded-xl sticky top-4 flex-col space-y-3">
+            <h1 className="font-bold mb-2 text-lg">목차</h1>
+            {data.mdx?.tableOfContents?.items
+              ? //@ts-ignore
+                data.mdx?.tableOfContents.items.map((h1, index) => (
+                  <div key={index} className="text-sm">
+                    <Link to={h1.url}>
+                      <h1 id={h1.url} className="font-medium mb-2">
+                        {h1.title}
+                      </h1>
+                    </Link>
+                    {h1?.items
+                      ? //@ts-ignore
+                        h1?.items.map((h2, index) => (
+                          <Link to={h2.url} key={index}>
+                            <h2 id={h2.url} className="ml-4 leading-7">
+                              {h2.title}
+                            </h2>
+                          </Link>
+                        ))
+                      : null}
+                  </div>
+                ))
+              : null}
           </div>
-          <div className="prose prose-sm lg:prose-base prose-h1:text-3xl prose-h1:pt-8 prose-h1:mb-0 prose-h2:mt-10 max-w-none dark:prose-invert prose-headings:before:text-sm lg:prose-headings:before:text-lg prose-headings:before:text-zinc-200 dark:prose-headings:before:text-zinc-600 prose-headings:before:mr-2 prose-h1:before:content-['#'] prose-h2:before:content-['##'] prose-h3:before:content-['###'] prose-h4:before:content-['####'] prose-h5:before:content-['#####'] prose-h6:before:content-['######']">
-            {children}
-          </div>
-        </article>
+        </div>
       </section>
     </Layout>
   );
@@ -57,8 +84,13 @@ export const query = graphql`
         title
         tags
       }
+      tableOfContents
     }
   }
 `;
+
+export const Head = ({ data }: { data: Queries.PostDetailQuery }) => (
+  <Seo title={data.mdx?.frontmatter?.title!} />
+);
 
 export default PostDetail;
