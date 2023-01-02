@@ -10,6 +10,6 @@ const IndexPage = () => {
   );
 };
 
-export const Head = () => <Seo title="블로그" />;
+export const Head = () => <Seo title="홈" />;
 
 export default IndexPage;
