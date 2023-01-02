@@ -12,6 +12,7 @@ const config: GatsbyConfig = {
   graphqlTypegen: true,
   plugins: [
     `gatsby-plugin-postcss`,
+    `gatsby-plugin-mdx`,
     {
       resolve: `gatsby-omni-font-loader`,
       options: {
@@ -27,6 +28,13 @@ const config: GatsbyConfig = {
             file: `https://fonts.googleapis.com/css2?family=Pacifico&display=swap`,
           },
         ],
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `posts`,
+        path: `${__dirname}/posts`,
       },
     },
   ],
