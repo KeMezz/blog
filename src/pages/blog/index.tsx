@@ -32,7 +32,7 @@ const Blog = ({ data }: PageProps<Queries.BlogPostsQuery>) => {
 
 export const query = graphql`
   query BlogPosts {
-    allMdx {
+    allMdx(sort: { frontmatter: { date: DESC } }) {
       nodes {
         frontmatter {
           date(formatString: "YYYY년 MM월 DD일")
