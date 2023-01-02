@@ -6,9 +6,6 @@ const config: GatsbyConfig = {
     siteUrl: `https://www.yourdomain.tld`,
     description: `그때그때 적어두고, 필요할 때마다 꺼내서 되새길 수 있는 캐시 같은 블로그.`,
   },
-  // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
-  // If you use VSCode you can also use the GraphQL plugin
-  // Learn more at: https://gatsby.dev/graphql-typegen
   graphqlTypegen: true,
   plugins: [
     `gatsby-plugin-postcss`,
@@ -19,6 +16,21 @@ const config: GatsbyConfig = {
       resolve: `gatsby-plugin-mdx`,
       options: {
         gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              className: `mt-2`,
+              isIconAfterHeader: true,
+            },
+          },
+          {
+            resolve: `gatsby-remark-prismjs`,
+            options: {
+              inlineCodeMarker: null,
+              showLineNumbers: true,
+              noInlineHighlight: true,
+            },
+          },
           {
             resolve: `gatsby-remark-images`,
             options: { maxWidth: 600 },
@@ -48,6 +60,19 @@ const config: GatsbyConfig = {
       options: {
         name: `posts`,
         path: `${__dirname}/posts`,
+      },
+    },
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: `dotCache`,
+        short_name: `dotCache`,
+        start_url: `/`,
+        lang: `ko`,
+        background_color: `#ffffff`,
+        icon: "src/images/icon.png",
+        theme_color: `#67B3D1`,
+        display: `standalone`,
       },
     },
   ],
