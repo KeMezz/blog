@@ -4,12 +4,15 @@ import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { FaInstagram } from "@react-icons/all-files/fa/FaInstagram";
 import HeaderLink from "./HeaderLink";
 import { Link } from "gatsby";
+import { cls } from "../utils/cls";
 
 interface LayoutProps {
+  disablePaddings?: boolean;
+  hideNav?: boolean;
   children: ReactElement | ReactElement[];
 }
 
-function Layout({ children }: LayoutProps) {
+function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
   const pathname = window.location.pathname;
   return (
     <main>
@@ -22,23 +25,32 @@ function Layout({ children }: LayoutProps) {
               </h1>
             </Link>
           </div>
-          <nav className="w-full lg:w-auto h-10 lg:h-auto grid grid-cols-3 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
-            <HeaderLink to="/" title="홈" active={pathname === "/"} />
-            <HeaderLink
-              to="/blog"
-              title="블로그"
-              active={pathname.startsWith("/blog")}
-            />
-            <HeaderLink
-              to="/search"
-              title="검색"
-              active={pathname.startsWith("/search")}
-            />
-          </nav>
+          {hideNav ? null : (
+            <nav className="w-full lg:w-auto h-10 lg:h-auto grid grid-cols-3 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
+              <HeaderLink to="/" title="홈" active={pathname === "/"} />
+              <HeaderLink
+                to="/blog"
+                title="블로그"
+                active={pathname.startsWith("/blog")}
+              />
+              <HeaderLink
+                to="/search"
+                title="검색"
+                active={pathname.startsWith("/search")}
+              />
+            </nav>
+          )}
         </div>
       </header>
-      <section className="bg-gray-100 dark:bg-zinc-800 dark:text-white shadow-inner">
-        <div className="max-w-7xl mx-auto px-6">{children}</div>
+      <section className="bg-gray-100 dark:bg-zinc-800 dark:text-white">
+        <div
+          className={cls(
+            `max-w-7xl mx-auto min-h-[70vh]`,
+            disablePaddings ? "" : "px-6"
+          )}
+        >
+          {children}
+        </div>
       </section>
       <footer className="py-8 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:max-w-7xl lg:mx-auto lg:px-8 gap-4 lg:gap-6">

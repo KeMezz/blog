@@ -13,7 +13,7 @@ const Blog = ({ data }: PageProps<Queries.BlogPostsQuery>) => {
           <option>태그별로 보기</option>
           <option>시리즈 모아보기</option>
         </select>
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+        <section className="grid grid-flow-dense justify-items-stretch grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
           {data.allMdx.nodes.map((mdx) => (
             <PostPreview
               key={mdx.frontmatter?.slug}
@@ -21,6 +21,7 @@ const Blog = ({ data }: PageProps<Queries.BlogPostsQuery>) => {
               title={mdx.frontmatter?.title!}
               excerpt={mdx.excerpt!}
               date={mdx.frontmatter?.date!}
+              slug={mdx.frontmatter?.slug!}
             />
           ))}
         </section>
@@ -35,7 +36,6 @@ export const query = graphql`
       nodes {
         frontmatter {
           date(formatString: "YYYY년 MM월 DD일")
-          tech
           title
           slug
           emoji
