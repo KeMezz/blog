@@ -40,7 +40,7 @@ function Layout({ children }: LayoutProps) {
       <section className="bg-gray-100 dark:bg-zinc-800 dark:text-white shadow-inner">
         <div className="max-w-7xl mx-auto px-6">{children}</div>
       </section>
-      <footer className="border-t-2 dark:border-gray-600 py-8 bg-white dark:bg-zinc-900 dark:text-white">
+      <footer className="py-8 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:max-w-7xl lg:mx-auto lg:px-8 gap-4 lg:gap-6">
           <h2 className="text-2xl font-bold lg:text-3xl font-['Pacifico']">
             Hyeongjin Developer Blog
