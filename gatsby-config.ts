@@ -12,7 +12,20 @@ const config: GatsbyConfig = {
   graphqlTypegen: true,
   plugins: [
     `gatsby-plugin-postcss`,
-    `gatsby-plugin-mdx`,
+    `gatsby-plugin-image`,
+    `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: { maxWidth: 600 },
+          },
+        ],
+      },
+    },
     {
       resolve: `gatsby-omni-font-loader`,
       options: {
