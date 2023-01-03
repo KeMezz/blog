@@ -3,6 +3,7 @@ import React, { ReactElement } from "react";
 import Layout from "../../components/Layout";
 import { FaRegCalendar } from "@react-icons/all-files/fa/FaRegCalendar";
 import Seo from "../../components/Seo";
+import TableOfContents from "../../components/TableOfContents";
 
 interface PostDetailProps {
   data: Queries.PostDetailQuery;
@@ -43,31 +44,8 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
               {children}
             </div>
           </article>
-          <div className="p-8 bg-white dark:bg-zinc-900 hidden xl:flex rounded-xl sticky top-4 flex-col space-y-3">
-            <h1 className="font-bold mb-2 text-lg">목차</h1>
-            {data.mdx?.tableOfContents?.items
-              ? //@ts-ignore
-                data.mdx?.tableOfContents.items.map((h1, index) => (
-                  <div key={index} className="text-sm">
-                    <Link to={h1.url}>
-                      <h1 id={h1.url} className="font-medium mb-2">
-                        {h1.title}
-                      </h1>
-                    </Link>
-                    {h1?.items
-                      ? //@ts-ignore
-                        h1?.items.map((h2, index) => (
-                          <Link to={h2.url} key={index}>
-                            <h2 id={h2.url} className="ml-4 leading-7">
-                              {h2.title}
-                            </h2>
-                          </Link>
-                        ))
-                      : null}
-                  </div>
-                ))
-              : null}
-          </div>
+          {/* @ts-ignore */}
+          <TableOfContents tableOfContents={data.mdx?.tableOfContents.items} />
         </div>
       </section>
     </Layout>
