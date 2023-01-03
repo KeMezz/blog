@@ -2,9 +2,9 @@ import React, { ReactElement } from "react";
 import { FaTwitter } from "@react-icons/all-files/fa/FaTwitter";
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
 import { FaInstagram } from "@react-icons/all-files/fa/FaInstagram";
-import HeaderLink from "./HeaderLink";
 import { Link } from "gatsby";
 import { cls } from "../utils/cls";
+import HeaderLink from "./HeaderLink";
 
 interface LayoutProps {
   disablePaddings?: boolean;
@@ -16,7 +16,7 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
   const pathname = window.location.pathname;
   return (
     <main>
-      <header className="w-full h-30 lg:h-20 bg-white dark:bg-zinc-900 dark:text-white">
+      <header className="w-full h-28 lg:h-20 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col h-full lg:flex-row lg:px-8 lg:mx-auto lg:max-w-7xl">
           <div className="w-full h-20 lg:h-auto flex justify-center lg:justify-between items-center lg:border-none">
             <Link to="/">
@@ -26,7 +26,7 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
             </Link>
           </div>
           {hideNav ? null : (
-            <nav className="w-full lg:w-auto h-10 lg:h-auto grid grid-cols-3 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
+            <nav className="w-full lg:w-auto h-8 lg:h-auto grid grid-cols-3 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
               <HeaderLink to="/" title="홈" active={pathname === "/"} />
               <HeaderLink
                 to="/blog"
