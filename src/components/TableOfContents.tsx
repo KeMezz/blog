@@ -15,7 +15,6 @@ interface TocProps {
 const TableOfContents = ({ tableOfContents }: TocProps) => {
   return (
     <div className="pl-6 mt-6 border-l-4 border-cyan-500 hidden xl:flex sticky top-8 flex-col space-y-2">
-      {/* <h1 className="font-bold mb-2 text-lg">목차</h1> */}
       {tableOfContents.map((h1, index) => (
         <div key={index} className="text-sm">
           <Link to={h1.url}>
