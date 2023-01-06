@@ -1,4 +1,4 @@
-import { graphql, Link } from "gatsby";
+import { graphql } from "gatsby";
 import React, { ReactElement, useEffect } from "react";
 import Layout from "../../components/Layout";
 import { FaRegCalendar } from "@react-icons/all-files/fa/FaRegCalendar";
@@ -47,20 +47,6 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
     return () => {
       window.removeEventListener("scroll", onScrollEvent);
     };
-    // const observer = new IntersectionObserver((e) => {
-    //   e.forEach((i) => {
-    //     if (window.scrollY >= i.target.offsetTop) {
-    //       toc
-    //         ?.getElementsByClassName(`#${i.target.id}`)[0]
-    //         .classList.add("text-cyan-500");
-    //     } else {
-    //       toc
-    //         ?.getElementsByClassName(`#${i.target.id}`)[0]
-    //         .classList.remove("text-cyan-500");
-    //     }
-    //   });
-    // });
-    // headings.forEach((heading) => observer.observe(heading));
   }, []);
 
   return (
@@ -100,6 +86,7 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
           {/* @ts-ignore */}
           <TableOfContents tableOfContents={data.mdx?.tableOfContents.items} />
         </div>
+        <div className="giscus mt-8 lg:mt-12 px-4 lg:p-0" />
       </section>
     </Layout>
   );
@@ -121,7 +108,7 @@ export const query = graphql`
 `;
 
 export const Head = ({ data }: { data: Queries.PostDetailQuery }) => (
-  <Seo title={data.mdx?.frontmatter?.title!} />
+  <Seo title={data.mdx?.frontmatter?.title!} showComments />
 );
 
 export default PostDetail;
