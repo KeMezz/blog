@@ -16,7 +16,7 @@ const TableOfContents = ({ tableOfContents }: TocProps) => {
   return (
     <div
       id="toc"
-      className="pl-4 mt-6 border-l-4 border-cyan-500 hidden lg:flex sticky top-8 flex-col space-y-2"
+      className="pl-4 my-6 border-l-4 border-cyan-500 hidden lg:flex sticky top-8 flex-col space-y-2"
     >
       {tableOfContents.map((h1, index) => (
         <div key={index} className="text-xs xl:text-sm">
