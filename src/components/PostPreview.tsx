@@ -19,7 +19,7 @@ const PostPreview = ({
 }: PostPreviewProps) => {
   return (
     <Link to={`/blog/${slug}`}>
-      <article className="bg-white dark:bg-zinc-900 p-4 lg:p-6 rounded-lg flex flex-col gap-3 h-full">
+      <article className="bg-white dark:bg-zinc-900 p-4 lg:p-6 rounded-lg flex flex-col gap-3 h-full lg:hover:shadow-lg lg:hover:-translate-y-1 lg:transition-all">
         <h2 className="font-semibold lg:text-lg">
           {emoji} {title}
         </h2>
