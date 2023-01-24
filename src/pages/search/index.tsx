@@ -5,8 +5,8 @@ import Seo from "../../components/Seo";
 const Search = () => {
   return (
     <Layout>
-      <div className="py-6 h-96">
-        <h1 className="text-xl font-bold">검색</h1>
+      <div className="py-6 h-96 flex justify-center items-center">
+        <h1 className="text-lg">검색 기능은 아직 개발 중이에요!</h1>
       </div>
     </Layout>
   );
