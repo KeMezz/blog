@@ -15,7 +15,7 @@ interface LayoutProps {
 function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
   const pathname = window.location.pathname;
   return (
-    <main>
+    <main className="min-h-screen bg-white dark:bg-zinc-900">
       <header className="w-full h-28 lg:h-20 bg-white dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-col h-full lg:flex-row lg:px-8 lg:mx-auto lg:max-w-7xl">
           <div className="w-full h-20 lg:h-auto flex justify-center lg:justify-between items-center lg:border-none">
