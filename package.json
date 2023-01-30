@@ -20,6 +20,7 @@
     "@react-icons/all-files": "^4.1.0",
     "gatsby": "^5.2.0",
     "gatsby-omni-font-loader": "^2.0.2",
+    "gatsby-plugin-gtag": "^1.0.13",
     "gatsby-plugin-image": "^3.3.2",
     "gatsby-plugin-manifest": "^5.3.1",
     "gatsby-plugin-mdx": "^5.3.1",

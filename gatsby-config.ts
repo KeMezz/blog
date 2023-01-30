@@ -74,6 +74,14 @@ const config: GatsbyConfig = {
         display: `standalone`,
       },
     },
+    {
+      resolve: `gatsby-plugin-gtag`,
+      options: {
+        trackingId: `G-W98KGFSHMK`,
+        head: true,
+        anonymize: false,
+      },
+    },
   ],
 };
 
