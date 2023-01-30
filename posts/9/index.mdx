@@ -1,0 +1,186 @@
+---
+emoji: 👑
+title: React Native Basics
+date: "2022-12-16"
+tags: ["개발", "react-native"]
+slug: 9
+---
+
+## SplashScreen
+
+```jsx
+import React, { useCallback, useEffect, useState } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import * as Font from "expo-font";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Text, View } from "react-native";
+import Tabs from "./navigation/Tabs";
+import { NavigationContainer } from "@react-navigation/native";
+
+// 리소스를 불러오는 동안 스플래시 스크린이 표시될 수 있도록 유지.
+SplashScreen.preventAutoHideAsync();
+
+export default function App() {
+  const [appIsReady, setAppIsReady] = useState(false);
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Font나 Asset, Image 등을 이 곳에서 로드합니다.
+        await Font.loadAsync(MaterialIcons.font);
+      } catch {
+        console.warn(e);
+      } finally {
+        // 로드가 완료되면 앱을 렌더하도록 합니다.
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  });
+
+  if (!appIsReady) {
+    return null;
+  }
+  return (
+    <NavigationContainer onReady={onLayoutRootView}>
+      <Tabs />
+    </NavigationContainer>
+  );
+}
+```
+
+SplashScreen은 앱 최초 실행 시 API 요청이나 폰트 로딩을 하는 동안 스플래시 스크린을 계속 표시해주도록 하는 라이브러리. Asset, Font, Image 등을 미리 로드할 수 있다.
+
+> [SplashScreen | Expo Docs](https://docs.expo.dev/versions/latest/sdk/splash-screen/)
+
+## React Navigation
+
+### BottomTopNavigator
+
+```jsx
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Movie from "../screens/Movie";
+import Tv from "../screens/Tv";
+import Search from "../screens/Search";
+
+const Tab = createBottomTabNavigator();
+
+const Tabs = () => (
+  <Tab.Navigator initialRouteName="Movies">
+    <Tab.Screen name="Movies" component={Movie} />
+    <Tab.Screen name="TV" component={Tv} />
+    <Tab.Screen name="Search" component={Search} />
+  </Tab.Navigator>
+);
+
+export default Tabs;
+```
+
+`createBottomTabNavigator`로 Tab을 선언하고, 위와 같이 BottomTabNavigation을 구현할 수 있다. 네비게이션을 렌더링 할 때는 반드시 상위에서 `<NavigationContainer>`로 감싸주어야 한다.
+
+> [BottomTabsNavigator](https://reactnavigation.org/docs/native-stack-navigator/)
+
+### NativeStackNavigator
+
+```jsx
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Text, TouchableOpacity } from "react-native";
+
+const ScreenOne = ({ navigation: { navigate } }) => (
+  <TouchableOpacity onPress={() => navigate("Two")}>
+    <Text>Screen One!</Text>
+  </TouchableOpacity>
+);
+const ScreenTwo = ({ navigation: { navigate } }) => (
+  <TouchableOpacity onPress={() => navigate("Three")}>
+    <Text>Screen Two!</Text>
+  </TouchableOpacity>
+);
+const ScreenThree = ({ navigation: { goBack } }) => (
+  <TouchableOpacity onPress={() => goBack()}>
+    <Text>Back Two!</Text>
+  </TouchableOpacity>
+);
+
+const NativeStack = createNativeStackNavigator();
+
+const Stack = () => {
+  return (
+    <NativeStack.Navigator>
+      <NativeStack.Screen name="One" component={ScreenOne} />
+      <NativeStack.Screen name="Two" component={ScreenTwo} />
+      <NativeStack.Screen name="Three" component={ScreenThree} />
+    </NativeStack.Navigator>
+  );
+};
+
+export default Stack;
+```
+
+> [NativeStackNavigator | React Navigation Docs](https://reactnavigation.org/docs/native-stack-navigator/)
+
+### Combine with two Navigators
+
+```jsx
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Tabs from "./Tabs";
+import Stack from "./Stack";
+
+const Nav = createNativeStackNavigator();
+
+const Root = () => {
+  return (
+    <Nav.Navigator
+      screenOptions={{ presentation: "modal", headerShown: false }}
+    >
+      <Nav.Screen name="Tabs" component={Tabs} />
+      <Nav.Screen name="Stack" component={Stack} />
+    </Nav.Navigator>
+  );
+};
+
+export default Root;
+```
+
+만약 TabNavigator 내부에 StackNavigator를 렌더하는 것이 아니라, StackNavigator가 렌더될 때 Tab을 전부 가리면서 표시되어야 한다면, 위처럼 하나의 Root Navigator를 만든 뒤에 그 안에다가 두 가지의 서로 다른 Navigator를 렌더하면 된다.
+
+```jsx
+import React from "react";
+import { TouchableOpacity, Text } from "react-native";
+
+const Movie = ({ navigation: { navigate } }) => (
+  <TouchableOpacity
+    style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+    onPress={() => navigate("Stack", { screen: "Three" })}
+  >
+    <Text>Movie</Text>
+  </TouchableOpacity>
+);
+
+export default Movie;
+```
+
+각 Screen의 내부에서는 navigation prop을 사용할 수 있으므로, 위처럼 navigate 함수를 사용하면 아예 다른 Navigator의 Screen으로도 이동하는 것이 가능하다.
+
+## useColorScheme()
+
+```javascript
+import { useColorScheme } from "react-native";
+
+const App = () => {
+  const colorScheme = useColorScheme();
+  console.log(colorScheme); // "light" or "dark".
+  /* ... */
+};
+```
+
+useColorScheme 훅은 사용자의 기기가 다크모드인지 라이트모드인지 알려줄 뿐만 아니라 테마의 변경까지도 감지할 수 있다.

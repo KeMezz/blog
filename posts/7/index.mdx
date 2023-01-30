@@ -1,0 +1,181 @@
+---
+emoji: 📜
+title: FlatList와 React Query로 Infinite Scroll 구현하기
+date: "2023-01-02"
+tags: ["개발", "react-native", "react-query", "tanstack", "tanstack-query"]
+slug: 7
+---
+
+FlatList는 ScrollView와는 다르게 몇 가지 특수한 기능들을 제공하는데, 그 중 하나가 인피니트 스크롤의 손쉬운 구현이다. 이 글에서는 React Query와 연동하여 빠르게 인피니트 스크롤이 가능한 뷰를 만드는 방법을 소개하고자 한다.
+
+## FlatList의 prop 살펴보기
+
+### onEndReached
+
+```tsx
+const onEndReached = () => {
+  console.log("end reached!");
+};
+
+return (
+  <FlatList
+    onEndReached={onEndReached}
+    data={data?.results}
+    /* ... */
+  />
+);
+```
+
+`onEndReached` 는 사용자의 스크롤이 리스트의 끝부분에 도달했을 때 실행할 함수를 전달한다. 나중에 이 곳에 다음 페이지의 데이터를 불러오는 함수를 넣으면 된다.
+
+### onEndReachedThreshold
+
+```tsx
+const onEndReached = () => {
+  console.log("end reached!");
+};
+
+return (
+  <FlatList
+    onEndReached={onEndReached}
+    onEndReachedThreshold={0.75}
+    data={data?.results}
+    /* ... */
+  />
+);
+```
+
+이 옵션은 스크롤이 어디까지 진행되었을때 `onEndReached` 함수를 트리거할지를 정할 수 있게 해준다. 기본값은 아마 1로 되어 있는 것 같은데, 그래서 완전히 스크롤을 끝까지 내려야지만 함수가 실행된다. 위 처럼 `0.75`로 넣어주면 스크롤의 75% 지점만 지나가도 함수를 미리 실행시켜주기 때문에 로딩 시간을 감소시킬 수 있다.
+
+## React Query의 Infinite Queries
+
+```json
+// this is the result of `console.log(data)`
+{
+	pageParams: [undeinfed],
+	pages: [
+		{
+			page: 1,
+			total_page: 8,
+			results: [
+				/* ... */
+			],
+		},
+		{
+			page: 2,
+			total_page: 8,
+			results: [
+				/* ... */
+			],
+		},
+	]
+}
+```
+
+`useInfiniteQuery` 훅을 이용하면 인피니트 스크롤을 구현하는데 많은 도움을 받을 수 있다. 해당 훅을 이용해서 받은 데이터를 열어보면 대략 위와 같은 형태로, 일반적인 `useQuery` 훅을 사용해서 받아온 데이터와는 달리 `pageParams`라는 항목이 있고, 우리가 원래 받아야 할 데이터는 `pages` 안에 배열 형태로 담겨지는 것을 확인할 수 있다.
+
+## FlatList에 전달할 data 형식 변경
+
+```tsx
+const { isInitialLoading, data } = useQuery<DataResults>(["data"], fetchData);
+/* ... */
+return (
+  <FlatList
+    data={data?.results}
+    /* ... */
+  />
+);
+```
+
+기존에 `useQuery`를 이용하여 데이터를 가져오고 있었다면 위와 같은 형태로 작성되어 있었을 것이다. 그러나 앞서 살펴 보았듯이 `useInfiniteQuery`로 변경됨으로서 결과로 받는 데이터의 형식이 달라졌기 때문에 그에 맞는 형식으로 바꿔주어야 한다.
+
+```tsx
+const { isInitialLoading, data } = useInfiniteQuery<DataResults>(
+  ["data"],
+  fetchData
+);
+/* ... */
+return (
+  <FlatList
+    data={data?.pages.map((page) => page.results).flat()}
+    /* ... */
+  />
+);
+```
+
+`useInfitieQuery`를 통해 받아온 데이터는 `pages` 배열 안에 각 페이지에 해당하는 배열이 또 들어있는 형태가 된다. 인피니트 스크롤을 구현하기 위해서는 하나의 배열안에 모든 데이터가 나열되는 것이 훨씬 편하므로, 위처럼 `flat()` 메소드를 통해 배열을 전부 다림질 해준다.
+
+## React Query에게 페이지 정보 알려주기
+
+```typescript
+const fetchData = (pageParam: number) =>
+  fetch(`${BASE_URL}?api_key=${API_KEY}&page=${pageParam}`).then((res) =>
+    res.json()
+  );
+const { isInitialLoading, data } = useInfiniteQuery<DataResults>(
+  ["data"],
+  ({ pageParam }) => fetchData(pageParam)
+);
+```
+
+`useInfiniteQuery`를 이용하면 `fetchFn`에게 `pageParam`이라는 매개변수를 제공한다. 이를 연결해주면 React Query가 `fetchFn`을 통해 서버에게 요청할 현재 페이지 값을 컨트롤 할 수 있게 된다.
+
+```typescript
+const { isInitialLoading, data } = useInfiniteQuery<DataResults>(
+  ["data"],
+  ({ pageParam }) => fetchData(pageParam),
+  {
+    getNextPageParam: (lastPage) => {
+      const nextPage = lastPage.page + 1;
+      return nextPage > lastPage.total_pages ? null : nextPage;
+    },
+  }
+);
+```
+
+다음으로 `getNextPageParam`도 제공하는데, 다음 페이지의 데이터를 요청할 때 사용되는 함수이다. 매개변수로 최근 페이지 데이터를 제공해주므로, 위처럼 마지막 페이지에 도달했을때 null을 반환하도록 설정하면, React Query에게 최대 페이지 수를 알려준 것과 같다.
+
+## onEndReached 함수 완성하기
+
+```typescript
+const { isInitialLoading, data, hasNextPage, fetchNextPage } =
+  useInfiniteQuery<DataResults>(
+    ["data"],
+    ({ pageParam }) => fetchData(pageParam),
+    {
+      getNextPageParam: (lastPage) => {
+        const nextPage = lastPage.page + 1;
+        return nextPage > lastPage.total_pages ? null : nextPage;
+      },
+    }
+  );
+```
+
+이제 `useInfiniteQuery`에서 `hasNextPage`와 `fetchNextPage`를 추가로 꺼내온다. `hasNextPage`는 다음 페이지를 불러올 수 있는지 여부를 반환하고, `fetchNextPage`는 다음 페이지를 fetch 해주는 함수이다.
+
+```tsx
+const onEndReached = () => {
+  if (hasNextPage) {
+    fetchNextPage();
+  }
+};
+
+return (
+  <FlatList
+    onEndReached={onEndReached}
+    onEndReachedThreshold={0.75}
+    data={data?.pages.map((page) => page.results).flat()}
+    /* ... */
+  />
+);
+```
+
+onEndReached 함수를 위처럼 수정해준다. FlatList의 스크롤이 Threshold에 닿았을 때, 다음 페이지가 존재한다면 다음 페이지를 불러오게 된다.
+
+## 결론
+
+이로써 직접 하나하나 작성했다면 정말 오래걸리고 복잡했을 코드가 React Query가 제공해주는 메소드로 너무나도 간단하게 해결이 되었다! 개인적으로는 아직까지 실무에서 React Query를 활용할 기회가 없었기 때문에 못 써본 기능이 많았는데 하나씩 공부해가다보니 더 자주 써보면서 기능을 익혀두고 싶다는 생각이 팍팍 들었다!
+
+> [FlatList | React Native Docs](https://reactnative.dev/docs/flatlist)
+
+> [useInfiniteQuery | TanStack Query Docs](https://tanstack.com/query/v4/docs/react/reference/useInfiniteQuery)

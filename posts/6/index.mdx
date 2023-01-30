@@ -1,0 +1,251 @@
+---
+emoji: 🙋
+title: Animated API를 사용하기 위해 알아두면 좋을 것들
+date: "2023-01-16"
+tags: ["개발", "react-native", "animated"]
+slug: 6
+---
+
+## style의 transform 속성
+
+```tsx
+<View style={{ transform: [{ translateY: 200 }, { rotateX: "180deg" }] }} />
+```
+
+리액트 네이티브에도 CSS와 transform과 비슷한 역할을 하는 스타일 속성이 있으나, 작성방식이 약간 다르다. 리액트 네이티브의 transform은 일반적으로는 배열 형태로 입력되며, 각 transform의 속성별로 분리된 오브젝트를 보내주어야 한다는 룰이 있다.
+
+[Transforms | React Native Docs](https://reactnative.dev/docs/0.70/transforms)
+
+## Animated Value 선언
+
+```jsx
+const Y = new Animated.Value(0);
+```
+
+animation을 적용하고 싶은 value는 Animated API를 통해서만 선언한다.
+
+```javascript
+const position = new Animated.ValueXY({ x: 0, y: 0 });
+```
+
+`ValueXY`를 통해 두 개의 값을 동시에 지정하는 것도 가능하다.
+
+## Animated Value 수정
+
+```javascript
+const moveUp = () => {
+  Animated.spring(Y, {
+    toValue: 200,
+    useNativeDriver: true,
+  });
+};
+```
+
+Animated API를 통해 선언한 value는 직접 수정할 수 없고, 수정은 API가 제공하는 방법을 통해 이루어진다. 애니메이션을 설정하는데 사용되는 메소드는 decay, timing, spring이 있으며, 대부분의 경우에 timing을 통해 애니메이션을 구현하게 된다.
+
+## timing과 easing을 이용한 물리 효과 구현
+
+```jsx
+import { Easing } from "react-native";
+/* ... */
+const moveUp = () => {
+  Animated.timing(Y, {
+    toValue: 200,
+    useNativeDriver: true,
+    easing: Easing.elastic(200),
+  });
+};
+```
+
+timing을 통해 애니메이션을 조작할때, easing 옵션을 통해 다양한 애니메이션 물리효과를 구현할 수 있다. 공식문서에 Easing이 제공하는 각 옵션에 대한 설명이 잘 작성되어 있다.
+
+[Easing | React Native Docs](https://reactnative.dev/docs/easing)
+
+## Animated 엘리먼트 생성
+
+```jsx
+<Animated.View style={{ transform: [{ translateY: 200 }] }} />
+```
+
+어느 엘리먼트든 Animated API에 의해 컨트롤 할 수 있는 것은 아니다. Animated API를 통해 해당 엘리먼트를 애니메이션이 적용될 수 있는 그릇으로 만들어주어야 한다.
+
+```jsx
+const Box = styled.TouchableOpacity``;
+const AnimatedBox = Animated.createAnimatedComponent(Box);
+```
+
+기본적으로 Animated에 포함되어 있지 않은 엘리먼트들은 `createAnimatedComponent` 메소드를 통해 새롭게 만들 수도 있다. styled-components를 사용하는 경우라면 위와 같이 직접 작성한 styled-components를 매개변수로 넘겨서 만들 수도 있다.
+
+## useRef를 통한 Animated.Value 초기화 방지
+
+```jsx
+const Y = new Animated.Value(0);
+const moveUp = () => {
+  Animated.timing(Y, {
+    toValue: up ? 200 : -200,
+    useNativeDriver: true,
+  }).start(toggleUp);
+};
+return (
+  <Container>
+    <Pressable onPress={moveUp}>
+      <Animated.View style={{ transform: [{ translateY: Y }] }} />
+    </Pressable>
+  </Container>
+);
+```
+
+Animated.Value를 원시값으로 직접 지정하게 되면 문제가 발생하는데, 리액트가 리렌더때마다 모든 컴포넌트를 지정했던 초기값으로 되돌려버린다는 점이다. 위처럼 작성했을때 Y값은 200 혹은 -200으로 변경된 직후 컴포넌트 리렌더에 의해 즉시 0으로 되돌아가는 문제가 있다.
+
+```jsx
+const Y = useRef(new Animated.Value(0)).current;
+const moveUp = () => {
+  Animated.timing(Y, {
+    toValue: up ? 200 : -200,
+    useNativeDriver: true,
+  }).start(toggleUp);
+};
+return (
+  <Container>
+    <Pressable onPress={moveUp}>
+      <Animated.View style={{ transform: [{ translateY: Y }] }} />
+    </Pressable>
+  </Container>
+);
+```
+
+이럴때 useRef 훅을 이용하면 Animated.Value가 초기화 되는 것을 막을 수 있다. useRef 훅으로 감싸주면 컴포넌트가 다시 렌더되더라도 그 값을 유지할 수 있게 되기 때문이다.
+
+```jsx
+Y.addListener(() => console.log(Y));
+```
+
+컴포넌트 렌더링에 대한 영향에서 벗어났기 때문에 일반적인 `console.log`로는 제한된 값(컴포넌트가 리렌더 될 때의 값)만 확인할 수 있는데, `addListener` 메소드를 이용하면 실시간으로 바뀌는 값을 확인하는 것이 가능하다.
+
+> 컴포넌트가 특정 정보를 '기억'하게 하고 싶지만, 동시에 그 정보를 통해 새로운 렌더를 유발하게 하고 싶지 않을 때 ref를 사용합니다.
+
+[Referencing Values with Refs | React Docs](https://beta.reactjs.org/learn/referencing-values-with-refs)
+
+## interpolation
+
+interpolate는 덧붙이다, 삽입하다, 보간하다 등의 뜻을 가진 단어인데, 애니메이션에서 interpolation도 값을 보간한다는 뜻이다. 하나의 애니메이션에 대한 기준값을 설정해두고, 이와 동시에 이루어지게 하고 싶은 다른 애니메이션에 대한 값을 비율에 맞게 계산하여 사이의 값들을 보간한다는 뜻을 가지고 있다고 보면 될 듯 하다.
+
+```jsx
+const Y = useRef(new Animated.Value(200)).current;
+const opacity = Y.interpolate({
+  inputRange: [-300, 0, 300],
+  outputRange: [1, 0, 1],
+});
+```
+
+아까와 동일한 예문에서 opacity를 동시에 수정한다고 가정해봤을 때, 위와 같이 interpolation을 구현할 수 있다. opacity의 `Animated.Value`를 새롭게 작성하는 것이 아니라, Y값의 움직임에 따라서 opacity도 동시에 바뀌게 해달라고 선언한 모양이 된다. 우리가 기준값만 제시하면 `interpolate` 메소드가 알아서 사이의 값들을 보간해주는 것이다.
+
+![1.gif]('./1.gif')
+
+`inputRange`는 기존 Y의 값이 움직이는 것을 전제로 하고 있으며, 이를 통해 새롭게 만들어질`outputRange`가 opacity의 값이 된다. 즉, Y가 -300일때 opacity는 1이었다가, Y가 0일때는 opacity가 0이 되고, 다시 Y가 300이 되면 opacity도 다시 1로 바뀐다. 두 배열의 길이는 반드시 같아야 한다.
+
+```jsx
+const Y_POSITION = useRef(new Animated.Value(200)).current;
+const rotateY = Y_POSITION.interpolate({
+  inputRange: [-200, 200],
+  outputRange: ["-360deg", "360deg"],
+});
+```
+
+대박인건 string 형태의 스타일 속성들도 알아서 interpolate를 해준다는 점이다.
+
+```jsx
+const Y_POSITION = useRef(new Animated.Value(200)).current;
+const rotateY = Y_POSITION.interpolate({
+  inputRange: [-200, 200],
+  outputRange: ["-360deg", "360deg"],
+  extrapolate: "clamp",
+});
+```
+
+interpolate의 특성 중 하나는, inputRange와 outputRange를 벗어난 값에 대해서도 애니메이션을 제공해준다는 것이다. 만약 본인이 지정한 만큼만 interpolate가 작동하기를 원한다면 extrapolate 옵션으로 "clamp"를 설정해주면 이를 막아줄 수도 있다.
+
+[Interpolation | React Native Docs](https://reactnative.dev/docs/animations#interpolation)
+
+## ValueXY에 대한 팁
+
+```jsx
+const position = useRef(new Animated.ValueXY({ x: 0, y: 200 })).current;
+const moveUp = () => {
+  Animated.timing(position, {
+    toValue: { x: 0, y: 0 },
+    useNativeDriver: true,
+  }).start(toggleUp);
+};
+return (
+  <Container>
+    <Pressable onPress={moveUp}>
+      <AnimatedBox
+        style={{
+          transform: [{ translateX: position.x }, { translateY: position.y }],
+        }}
+      />
+    </Pressable>
+  </Container>
+);
+```
+
+ValueXY를 통해 value를 선언하게 되었을 때, `Animated.timing`의 `toValue`를 통해 x와 y의 값을 별도로 지정할 수 있게 된다. 만약 별도로 지정하지 않는 경우에는 x와 y의 값이 동일하게 변경된다.
+
+```jsx
+const position = useRef(new Animated.ValueXY({ x: 0, y: 200 })).current;
+position.addListener(() => console.log(position.getTranslateTransform));
+// [{"translateX": 0}, {"translateY": 200}]
+return (
+  <Container>
+    <Pressable onPress={moveUp}>
+      <AnimatedBox
+        style={{
+          borderRadius,
+          backgroundColor,
+          transform: [...position.getTranslateTransform()],
+        }}
+      />
+    </Pressable>
+  </Container>
+);
+```
+
+Animated Value의 메소드 중 하나인 `getTranslateTransform()`을 이용하면 해당 Animated 값을 리액트 네이티브의 transform 배열 형태 그대로 받아볼 수 있다. 따라서 위와 같이 간결하게 작성하는 것이 가능해진다.
+
+## 여러 개의 애니메이션을 연달아서 실행하기 (sequence)
+
+![sequence animation.gif]('./2.gif')
+
+```jsx
+const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get("window");
+
+const topLeft = Animated.timing(position, {
+  toValue: { x: -WINDOW_WIDTH / 2 + 100, y: -WINDOW_HEIGHT / 2 + 100 },
+  useNativeDriver: true,
+});
+const bottomLeft = Animated.timing(position, {
+  toValue: { x: -WINDOW_WIDTH / 2 + 100, y: WINDOW_HEIGHT / 2 - 100 },
+  useNativeDriver: true,
+});
+const topRight = Animated.timing(position, {
+  toValue: { x: WINDOW_WIDTH / 2 - 100, y: -WINDOW_HEIGHT / 2 + 100 },
+  useNativeDriver: true,
+});
+const bottomRight = Animated.timing(position, {
+  toValue: { x: WINDOW_WIDTH / 2 - 100, y: WINDOW_HEIGHT / 2 - 100 },
+  useNativeDriver: true,
+});
+const center = Animated.timing(position, {
+  toValue: 0,
+  useNativeDriver: true,
+});
+
+const moveEverywhere = () => {
+  Animated.loop(
+    Animated.sequence([topLeft, bottomLeft, bottomRight, topRight, center])
+  ).start();
+};
+```
+
+실행하고 싶은 애니메이션을 변수에 저장하고, `Animated.sequence`에 실행하고 싶은 순서대로 배열에 담아 넘겨주면 요청한 애니메이션이 연달아서 실행된다.

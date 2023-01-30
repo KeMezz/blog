@@ -1,0 +1,290 @@
+---
+emoji: 👟
+title: Gatsby.js Basics
+date: "2023-12-07"
+tags: ["개발", "gatsby"]
+slug: 8
+--
+
+## useStaticQuery
+
+```typescript
+const data = useStaticQuery<Queries.SeoDataQuery>(graphql`
+	query SeoData {
+		site {
+			siteMetadata {
+				title
+			}
+		}
+	}
+`);
+```
+
+useStaticQuery란, 말 그대로 정적인 쿼리를 사용할 때 쓰는 훅이다. 개츠비는 우리가 GraphQL을 통해 쿼리를 가져오면 자동으로 해당 쿼리에 대한 타입 구조를 만들어주기 때문에 Queries 내부에서 일치하는 데이터를 찾아서 타이핑을 해줄 수도 있다. useStaticQuery를 통해 가져온 데이터는 프로젝트 빌드 시에 미리 불러와져 HTML 파일에 정적으로 남게 된다.
+
+
+## Page Query
+
+```sh
+npm install gatsby-source-filesystem
+```
+
+```typescript
+// In gatsby-config.ts
+const config: GatsbyConfig = {
+  plugins: [
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `posts`,
+        path: `${__dirname}/posts`,
+      },
+    },
+  ],
+};
+```
+
+개츠비 플러그인 `gatsby-source-filesystem`을 설치하고 위와 같이 파일시스템을 설정하고 싶은 폴더 경로와 연결시켜준다.
+
+```typescript
+import { graphql } from "gatsby";
+
+export const query = graphql`
+  query BlogTitles {
+    allFile {
+      nodes {
+        name
+      }
+    }
+  }
+`;
+```
+
+데이터를 사용할 페이지 안에서 쿼리문을 통해 가져오고 싶은 데이터 구조를 작성하고, `query`라는 변수명으로 선언한다.
+
+```typescript
+import { PageProps } from "gatsby";
+
+function Blog({ data }: PageProps<Queries.BlogTitlesQuery>) {
+  console.log(data);
+  return (
+    <Layout title="Blog">
+      <ul>
+        {data.allFile.nodes.map((file, index) => (
+          <li key={index}>{file.name}</li>
+        ))}
+      </ul>
+    </Layout>
+  );
+}
+```
+
+그러면 개츠비 프레임워크의 룰에 따라, 해당 페이지에서 data로 가져오기만 해도 바로 쿼리를 불러올 수 있다.
+
+> [gatsby-source-filesystem | Gatsby Plugins](https://www.gatsbyjs.com/plugins/gatsby-source-filesystem/)
+
+
+## MDX
+
+```sh
+npm install gatsby-plugin-mdx gatsby-source-filesystem @mdx-js/react
+```
+
+```typescript
+// In gatsby-config.ts
+const config: GatsbyConfig = {
+  plugins: [
+	  `gatsby-plugin-mdx`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `posts`,
+        path: `${__dirname}/posts`,
+      },
+    },
+  ],
+};
+```
+
+mdx 플러그인을 설치하고 위와 같이 설정을 잡아준다.
+
+```mdx
+// In MDX files
+---
+
+title: 회사 짤렸다
+date: "2022-11-25"
+description: 이제 출근 안해도 된다
+tech: ["React"]
+slug: 1
+
+---
+
+````
+
+mdx 파일 상단에 frontmatter를 작성해준다. 위처럼 작성해주면 개츠비가 알아서 쿼리 구조를 생성해준다.
+
+```typescript
+// In /blog/index.tsx
+export const query = graphql`
+  query BlogPosts {
+    allMdx {
+      nodes {
+        frontmatter {
+          title
+          date(formatString: "YYYY년 MM월 DD일")
+          description
+          tech
+          slug
+        }
+        excerpt
+      }
+    }
+  }
+`;
+````
+
+/blog의 인덱스 페이지에서 파일별로 모든 데이터를 쿼리문으로 받아올 수 있게된다. 한 가지 독특한 점은 date를 포맷팅해서 가져올 수 있다는 점.
+
+```typescript
+// In /blog/{mdx.frontmatter__slug}.tsx
+interface IBlogPosts {
+  data: Queries.PostDetailQuery;
+  children: ReactElement | ReactElement[];
+}
+
+export default function BlogPosts({ data, children }: IBlogPosts) {
+  return (
+    <Layout title={data.mdx?.frontmatter?.title!}>
+      <div>{children}</div>
+    </Layout>
+  );
+}
+
+export const query = graphql`
+  query PostDetail($frontmatter__slug: Int) {
+    mdx(frontmatter: { slug: { eq: $frontmatter__slug } }) {
+      body
+      frontmatter {
+        date
+        description
+        slug
+        tech
+        title
+      }
+    }
+  }
+`;
+
+export const Head = ({ data }: IBlogPosts) => (
+  <Seo title={data.mdx?.frontmatter?.title!} />
+);
+```
+
+`{mdx.frontmatter__slug}`라는 이름으로 파일을 생성하게 되면, 개츠비가 알아서 slug의 수만큼의 페이지를 생성한다. 쿼리 변수를 통해 쿼리문에서도 slug를 가져다 쓸 수 있고, `children`에는 jsx로 변환된 mdx 파일을 전달받을 수 있다.
+
+> [gatsby-plugin-mdx | Gatsby Plugins](https://www.gatsbyjs.com/plugins/gatsby-plugin-mdx)
+
+## Image
+
+```sh
+npm install gatsby-plugin-image gatsby-plugin-sharp gatsby-source-filesystem gatsby-transformer-sharp
+```
+
+```typescript
+// In gatsby-config.ts
+const config: GatsbyConfig = {
+  plugins: [
+    `gatsby-plugin-image`,
+    `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
+  ],
+};
+```
+
+### Static Image
+
+```tsx
+<StaticImage src="https://image.com/123" alt="image" />
+```
+
+### Dynamic Image
+
+```mdx
+## // In MDX files
+
+title: 회사 짤렸다
+date: "2022-11-25"
+description: 이제 출근 안해도 된다
+tech: ["React"]
+slug: 1
+heroImage: image_1.png
+
+---
+```
+
+```tsx
+export default function BlogPosts({ data, children }: IBlogPosts) {
+  const image = getImage(
+    data.mdx?.frontmatter?.heroImage?.childImageSharp?.gatsbyImageData!
+  );
+  return (
+    <Layout title={data.mdx?.frontmatter?.title!}>
+      <GatsbyImage image={image as any} alt={data.mdx?.frontmatter?.title!} />
+      <div>{children}</div>
+    </Layout>
+  );
+}
+
+export const query = graphql`
+  query PostDetail($frontmatter__slug: Int) {
+    mdx(frontmatter: { slug: { eq: $frontmatter__slug } }) {
+      body
+      frontmatter {
+        date
+        description
+        slug
+        tech
+        title
+        heroImage {
+          childImageSharp {
+            gatsbyImageData(placeholder: BLURRED)
+          }
+        }
+      }
+    }
+  }
+`;
+```
+
+### image inside of mdx
+
+```sh
+npm install gatsby-remark-images
+```
+
+```typescript
+// In gatsby-config.ts
+const config: GatsbyConfig = {
+  plugins: [
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: { maxWidth: 600 },
+          },
+        ],
+      },
+    },
+  ],
+};
+```
+
+```mdx
+// In MDX files
+![image_1.png](./image_1.png)
+```
+
+> [`gatsby-remark-*` plugins | Gatsby Plugins](https://www.gatsbyjs.com/plugins/gatsby-plugin-mdx/?=mdx#gatsby-remark--plugins)
