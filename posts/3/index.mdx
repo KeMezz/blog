@@ -64,7 +64,7 @@ const panResponder = useRef(
 
 ### onPanResponderGrant
 
-![1.gif](./1.gif)
+![제스처를 할 때마다 오브젝트가 중심으로 순간이동하는 영상](./1.gif)
 
 여기까지만 설정했다면 두번째 이상의 제스쳐가 멀쩡하게 작동하지 않는다. 우리는 제스처를 감지할 때마다 `dx`와 `dy`라는 값을 얻어서 `setValue` 메소드를 통해 그대로 덮어씌워주고 있는데, 이 `dx`와 `dy` 값이 새롭게 제스처를 시작할때마다 0으로 돌아가기 때문이다.
 
@@ -104,7 +104,7 @@ const panResponder = useRef(
 ).current;
 ```
 
-![2.gif](./2.gif)
+![정상적으로 제스쳐가 작동하는 영상](./2.gif)
 
 `onPanResponderRelease`를 이용하면 사용자가 제스처를 종료했을 때 실행할 함수를 작성할 수 있다. 여기에서 오프셋 값을 평탄화하면 된다.
 

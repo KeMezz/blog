@@ -6,6 +6,8 @@ tags: ["개발", "react-native"]
 slug: 9
 ---
 
+> React Native 앱을 만들 때 필요하다고 생각되는 기초적인 부분들을 모아보았다. 앱을 만들 때마다 반복적으로 수행해야 하는 작업들 위주로 간략하게 정리하였고, 자세한 내용은 공식 문서 링크를 통해 확인할 수 있도록 해두었다.
+
 ## SplashScreen
 
 ```jsx
@@ -57,7 +59,7 @@ export default function App() {
 
 SplashScreen은 앱 최초 실행 시 API 요청이나 폰트 로딩을 하는 동안 스플래시 스크린을 계속 표시해주도록 하는 라이브러리. Asset, Font, Image 등을 미리 로드할 수 있다.
 
-> [SplashScreen | Expo Docs](https://docs.expo.dev/versions/latest/sdk/splash-screen/)
+[SplashScreen | Expo Docs](https://docs.expo.dev/versions/latest/sdk/splash-screen/)
 
 ## React Navigation
 
@@ -85,7 +87,7 @@ export default Tabs;
 
 `createBottomTabNavigator`로 Tab을 선언하고, 위와 같이 BottomTabNavigation을 구현할 수 있다. 네비게이션을 렌더링 할 때는 반드시 상위에서 `<NavigationContainer>`로 감싸주어야 한다.
 
-> [BottomTabsNavigator](https://reactnavigation.org/docs/native-stack-navigator/)
+[BottomTabsNavigator | React Navigation Docs](https://reactnavigation.org/docs/native-stack-navigator/)
 
 ### NativeStackNavigator
 
@@ -125,7 +127,7 @@ const Stack = () => {
 export default Stack;
 ```
 
-> [NativeStackNavigator | React Navigation Docs](https://reactnavigation.org/docs/native-stack-navigator/)
+[NativeStackNavigator | React Navigation Docs](https://reactnavigation.org/docs/native-stack-navigator/)
 
 ### Combine with two Navigators
 
@@ -171,6 +173,8 @@ export default Movie;
 
 각 Screen의 내부에서는 navigation prop을 사용할 수 있으므로, 위처럼 navigate 함수를 사용하면 아예 다른 Navigator의 Screen으로도 이동하는 것이 가능하다.
 
+[Moving between screens | React Navigation Docs](https://reactnavigation.org/docs/navigating)
+
 ## useColorScheme()
 
 ```javascript
@@ -184,3 +188,5 @@ const App = () => {
 ```
 
 useColorScheme 훅은 사용자의 기기가 다크모드인지 라이트모드인지 알려줄 뿐만 아니라 테마의 변경까지도 감지할 수 있다.
+
+[useColorScheme | React Native Docs](https://reactnavigation.org/docs/navigating)
