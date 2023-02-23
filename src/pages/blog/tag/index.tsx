@@ -1,9 +1,10 @@
 import { graphql } from "gatsby";
 import * as React from "react";
+import { StringParam, useQueryParam } from "use-query-params";
 import BlogSelector from "../../../components/blog-selector";
 import Layout from "../../../components/layout";
 import PostPreview from "../../../components/post-preview";
-import Seo from "../../../components/seo";
+import Seo from "../../../components/Seo";
 
 interface TagsProps {
   data: Queries.AllPostTagsQuery;
@@ -11,7 +12,7 @@ interface TagsProps {
 
 const Tags = ({ data }: TagsProps) => {
   const [allTags, setAllTags] = React.useState<(string | null)[]>([]);
-  const [enabledTags, setEnabledTags] = React.useState(["개발"]);
+  const [tagParam, setTagParam] = useQueryParam("tag", StringParam);
 
   const getAllTags = () => {
     let allTags: (string | null)[] = [];
