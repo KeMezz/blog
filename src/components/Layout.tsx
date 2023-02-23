@@ -54,10 +54,8 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
           <h2 className="text-2xl font-bold lg:text-3xl font-['Pacifico'] antialiased">
             Hyeongjin Developer Blog
           </h2>
-          <p className="text-xs lg:text-sm">
-            오히려 잘 모르기 때문에 글로 남기려고 합니다.
-            <br />
-            함께 채워가는 블로그를 만들고 싶어요!
+          <p className="text-xs lg:text-sm font-thin">
+            ©️ 2022-2023 Hyeongjin. All Rights Reserved.
           </p>
           <div className="flex gap-6 text-2xl text-gray-600 dark:text-gray-300">
             <FaGithub />
