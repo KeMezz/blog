@@ -1,27 +1,14 @@
-import { useStaticQuery } from "gatsby";
 import { graphql } from "gatsby";
 import * as React from "react";
-import Layout from "../../components/Layout";
-import PostPreview from "../../components/PostPreview";
-import Seo from "../../components/Seo";
+import Layout from "../../components/layout";
+import PostPreview from "../../components/post-preview";
+import Seo from "../../components/seo";
 
-const Posts = () => {
-  // const [page, setPage] = React.useState(10);
-  const data = useStaticQuery<Queries.RecentPostsQuery>(graphql`
-    query RecentPosts($page: Int) {
-      allMdx(sort: { frontmatter: { date: DESC } }, limit: $page) {
-        nodes {
-          frontmatter {
-            date(formatString: "YYYY년 MM월 DD일")
-            title
-            slug
-            emoji
-          }
-          excerpt
-        }
-      }
-    }
-  `);
+interface PostsProps {
+  data: Queries.RecentPostsQuery;
+}
+
+const Posts = ({ data }: PostsProps) => {
   return (
     <Layout>
       <div className="pt-6 pb-8">
@@ -51,21 +38,21 @@ const Posts = () => {
   );
 };
 
-// export const query = graphql`
-//   query RecentPosts {
-//     allMdx(sort: { frontmatter: { date: DESC } }) {
-//       nodes {
-//         frontmatter {
-//           date(formatString: "YYYY년 MM월 DD일")
-//           title
-//           slug
-//           emoji
-//         }
-//         excerpt
-//       }
-//     }
-//   }
-// `;
+export const query = graphql`
+  query RecentPosts {
+    allMdx(sort: { frontmatter: { date: DESC } }) {
+      nodes {
+        frontmatter {
+          date(formatString: "YYYY년 MM월 DD일")
+          title
+          slug
+          emoji
+        }
+        excerpt
+      }
+    }
+  }
+`;
 
 export const Head = () => <Seo title="블로그" />;
 
