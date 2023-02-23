@@ -1,9 +1,9 @@
 import { graphql } from "gatsby";
 import * as React from "react";
 import BlogSelector from "../../components/blog-selector";
-import Layout from "../../components/layout";
+import Layout from "../../components/Layout";
 import PostPreview from "../../components/post-preview";
-import Seo from "../../components/seo";
+import Seo from "../../components/Seo";
 
 interface PostsProps {
   data: Queries.RecentPostsQuery;
