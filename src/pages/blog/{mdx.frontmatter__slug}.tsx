@@ -1,9 +1,9 @@
 import { graphql } from "gatsby";
 import React, { ReactElement, useEffect } from "react";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout";
 import { FaRegCalendar } from "@react-icons/all-files/fa/FaRegCalendar";
-import Seo from "../../components/Seo";
-import TableOfContents from "../../components/TableOfContents";
+import Seo from "../../components/seo";
+import TableOfContents from "../../components/table-of-contents";
 
 interface PostDetailProps {
   data: Queries.PostDetailQuery;
