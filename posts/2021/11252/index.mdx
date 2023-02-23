@@ -1,0 +1,50 @@
+---
+emoji: 👩‍🏫
+title: 리액트에서 HTML event를 TypeScript에게 설명하기
+date: "2021-11-25"
+tags: ["개발", "react", "typescript", "HTML"]
+slug: 2211252
+---
+
+## 배경지식
+
+- 우리는 HTML에서 발생한 이벤트를 onChange나 onSubmit, onClick 등으로 리스닝하여, 이를 자바스크립트에서 괄호 안의 argument로서 가져와 핸들링하게 된다.
+- 일반 JavaScript로 작성하는 React라면 이러한 일련의 방법이 동일하게 적용되겠지만, TypeScript로 작성하는 React에서는 이런 식으로가져온 event가 어디에서 어떻게 발생한 event인지에 대한 설명 해주지 않으면 에러가 발생하게 된다.
+- 참고로, 리액트는 실제로 HTML 요소에서 event를 넘겨받는것이 아니라 Synthetic Event라고 불리는 가상의 자체 이벤트를 생성하여 주고받는다. 아래서 설명하는 타입 지정 방식도 오로지 TypeScript로 작성하는 React에서만 적용되는 이야기이다.
+
+---
+
+## 타입 지정 방법
+
+```jsx
+function onChange(event: React.FormEvent<HTMLInputElement>) {
+  setInputValue(event.currentTarget.value);
+}
+```
+
+- 위처럼 타입 설명에 React.FormEvent를 작성하여 해당 event가 Form에서 왔다는 사실을 설명할 수 있다. (만약 form안에 있는게 아니라면 React.MouseEvent 등 사용)
+- input의 경우에는 `<HTMLInputElement>`를, form의 경우에는 `<HTMLFormElement>`를 붙여서 Form 안에 있는 어떤 HTML Element에서 발생한 event인지까지 설명한다.
+- TypeScript에서는 target 대신 currentTarget을 사용하기로 했다. 그냥 같은 거다.
+- 이외에도 다양한 종류의 event가 있을 것이므로 TypeScript의 자동완성을 활용하거나, 그때그때 검색하여 각각의 event에 알맞는 타입을 지정해주는 것이 필요하다.
+
+## 리액트에서 사용할 수 있는 모든 Synthetic Event의 종류
+
+- Clipboard Events
+- Composition Events
+- Keyboard Events
+- Focus Events
+- Form Events
+- Generic Events
+- Mouse Events
+- Pointer Events
+- Selection Events
+- Touch Events
+- UI Events
+- Wheel Events
+- Media Events
+- Image Events
+- Animation Events
+- Transition Events
+- Other Events
+
+[SyntheticEvent in React](https://reactjs.org/docs/events.html)

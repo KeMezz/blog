@@ -1,0 +1,89 @@
+---
+emoji: 🌈
+title: TypeScript에서 styled-components의 테마 기능 사용하기
+date: "2021-11-25"
+tags: ["개발", "react", "typescript", "styled-components"]
+slug: 2211251
+---
+
+## Definitely Typed를 통해 styled-components 설치
+
+```sh
+npm install @types/styled-components
+```
+
+- 이 과정에서 TypeScript에게 styled-components가 가지고 있는 모든 요소에 대한 타입을 설명해주는 index.d.ts를 설치하게 된다. ('타입 선언'이 포함된 버전의 styled-components를 다운로드 하는 것이라고 생각하면 된다.)
+
+## Declarations file 만들기
+
+```typescript
+// 모듈 사용을 위해 기존 styled-components를 임포트한다.
+import "styled-components";
+
+// 그 위에 내가 사용할 모듈을 다음과 같이 extend 하여 사용한다.
+declare module "styled-components" {
+  export interface DefaultTheme {
+    textColor: {
+      main: string;
+      accent: string;
+    };
+    bgColor: string;
+  }
+}
+```
+
+- ~.d.ts로 끝나는 타입 선언 파일을 새로 만들어야 한다. (~ 부분은 맘대로 작명 가능)
+- ~.d.ts 파일을 만들어서 사용하는 것은 1번 과정에서 설치했던 index.d.ts를 extend하여 사용자가 정의한 추가적인 설명을 덧붙여주는 개념이라고 보면 된다.
+
+## 테마 스타일을 정의하는 TypeScript(.ts) 파일 만들기
+
+```typescript
+// 앞서 만든 타입 모듈에 접근하기 위해 styled-components를 임포트한다.
+import { DefaultTheme } from "styled-components";
+
+// 타입을 지정해주고, 테마를 정의하고, 반드시 export까지 해준다.
+export const lightTheme: DefaultTheme = {
+  bgColor: "#dfe6e9",
+  textColor: {
+    main: "#dfe6e9",
+    accent: "#a29bfe",
+  },
+};
+```
+
+- 테마를 정의하고 `:타입모듈명`을 입력하여 앞서 만들었던 타입까지 지정해준다.
+
+## ThemeProvider로 테마를 사용할 컴포넌트를 감싸준다.
+
+```jsx
+import React from "react";
+import ReactDOM from "react-dom";
+import { ThemeProvider } from "styled-components";
+import App from "./App";
+import { lightTheme } from "./theme";
+
+ReactDOM.render(
+  <React.StrictMode>
+    <ThemeProvider theme={lightTheme}>
+      <App />
+    </ThemeProvider>
+  </React.StrictMode>,
+  document.getElementById("root")
+);
+```
+
+- ThemeProvider로 테마를 사용하고 싶은 컴포넌트를 감싸면, 안에 있는 컴포넌트가 테마에 접근할 수 있게 된다. 참고로 ThemeProvider는 styled-components의 컴포넌트 중 하나이다.
+- ThemeProvider는 반드시 theme라는 prop을 요구한다. 적용하고 싶은 테마를 본인이 정의했던 스타일에서 가져다 쓰면 적용된다. (테마 함수 import하는 것도 잊지 말기)
+
+## 테마를 사용한다.
+
+```jsx
+const Container = styled.div`
+  background-color: ${(props) => props.theme.bgColor};
+  color: ${(props) => props.theme.textColor.main};
+`;
+```
+
+- 이제 TypeScript가 테마 정의와 형식에 대해 알고 있기 때문에 자동완성과 타입 실수 없이 코드를 작성할 수 있게 되었다.
+
+[TypeScript on Styled Components](https://styled-components.com/docs/api#typescript)
