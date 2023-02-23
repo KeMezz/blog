@@ -19,7 +19,7 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
     const h1 = post.getElementsByTagName("h1")!;
     const h2 = post.getElementsByTagName("h2")!;
     const h3 = post.getElementsByTagName("h3")!;
-    // @ts-ignore
+
     const headings = [...h1, ...h2, ...h3];
 
     const onScrollEvent = () => {
