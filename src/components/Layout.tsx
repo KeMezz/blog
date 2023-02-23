@@ -26,18 +26,18 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
             </Link>
           </div>
           {hideNav ? null : (
-            <nav className="w-full lg:w-auto h-8 lg:h-auto grid grid-cols-3 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
+            <nav className="w-full lg:w-auto h-8 lg:h-auto grid grid-cols-2 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
               <HeaderLink to="/" title="홈" active={pathname === "/"} />
               <HeaderLink
                 to="/blog"
                 title="블로그"
                 active={pathname.startsWith("/blog")}
               />
-              <HeaderLink
+              {/* <HeaderLink
                 to="/search"
                 title="검색"
                 active={pathname.startsWith("/search")}
-              />
+              /> */}
             </nav>
           )}
         </div>
