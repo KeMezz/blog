@@ -4,14 +4,11 @@ import Layout from "../components/Layout";
 import Seo from "../components/Seo";
 import { FaRegHandshake } from "@react-icons/all-files/fa/FaRegHandshake";
 import { FaRegPaperPlane } from "@react-icons/all-files/fa/FaRegPaperPlane";
-import { graphql, PageProps } from "gatsby";
 
 const IndexPage = () => {
-  const sendEmail = () => {};
-  const openDiscussions = () => {};
   return (
     <Layout>
-      <section className="flex flex-col lg:items-center">
+      <section className="flex flex-col lg:flex-row lg:gap-8">
         <div className="mt-8 flex justify-center">
           <StaticImage
             className="w-48 h-48"
@@ -25,7 +22,7 @@ const IndexPage = () => {
             1년 차 주니어 개발자 정형진입니다. 프론트엔드를 위주로 개발하고
             있어요. "dotCache" 라는 이름의 이 블로그는 캐쉬처럼 빠르게 저장하고
             불러올 수 있는, 유용한 저장소가 되었으면 하는 마음으로 지은
-            블로그입니다. (은닉처라는 뜻도 있대요!)
+            블로그입니다.
           </p>
           <p className="text-sm lg:text-base leading-6 lg:leading-8">
             포스트 내용 중에 틀린 부분이 있거나 블로그를 이용하며 불쾌한 경험을
