@@ -27,4 +27,4 @@ const NotFoundPage: React.FC<PageProps> = () => {
 
 export default NotFoundPage;
 
-export const Head: HeadFC = () => <Seo title="404" />;
+export const Head: HeadFC = () => <Seo title="Not Found" />;
