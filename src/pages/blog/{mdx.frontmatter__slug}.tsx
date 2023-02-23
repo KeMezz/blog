@@ -4,6 +4,7 @@ import Layout from "../../components/layout";
 import { FaRegCalendar } from "@react-icons/all-files/fa/FaRegCalendar";
 import Seo from "../../components/seo";
 import TableOfContents from "../../components/table-of-contents";
+import Giscus from "@giscus/react";
 
 interface PostDetailProps {
   data: Queries.PostDetailQuery;
@@ -86,7 +87,23 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
           {/* @ts-ignore */}
           <TableOfContents tableOfContents={data.mdx?.tableOfContents.items} />
         </div>
-        <div className="giscus mt-8 lg:mt-12 px-4 lg:p-0" />
+        <div className="mt-8 lg:mt-12 px-4 lg:p-0">
+          <Giscus
+            id="comments"
+            repo="KeMezz/blog"
+            repoId="R_kgDOInDzBw"
+            category="Comments"
+            categoryId="DIC_kwDOInDzB84CTbpU"
+            mapping="pathname"
+            strict="0"
+            reactionsEnabled="1"
+            emitMetadata="0"
+            inputPosition="top"
+            theme="preferred_color_scheme"
+            lang="ko"
+            loading="eager"
+          />
+        </div>
       </section>
     </Layout>
   );
@@ -108,7 +125,7 @@ export const query = graphql`
 `;
 
 export const Head = ({ data }: { data: Queries.PostDetailQuery }) => (
-  <Seo title={data.mdx?.frontmatter?.title!} showComments />
+  <Seo title={data.mdx?.frontmatter?.title!} />
 );
 
 export default PostDetail;
