@@ -1,7 +1,7 @@
 import { StaticImage } from "gatsby-plugin-image";
 import * as React from "react";
-import Layout from "../components/Layout";
-import Seo from "../components/Seo";
+import Layout from "../components/layout";
+import Seo from "../components/seo";
 import { FaRegHandshake } from "@react-icons/all-files/fa/FaRegHandshake";
 import { FaRegPaperPlane } from "@react-icons/all-files/fa/FaRegPaperPlane";
 

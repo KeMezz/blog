@@ -1,8 +1,8 @@
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import Layout from "../../components/Layout";
+import Layout from "../../components/layout";
 import PostPreview from "../../components/post-preview";
-import Seo from "../../components/Seo";
+import Seo from "../../components/seo";
 
 const Search = () => {
   const [keyword, setKeyword] = React.useState("");

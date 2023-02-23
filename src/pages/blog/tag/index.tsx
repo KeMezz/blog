@@ -4,7 +4,7 @@ import { StringParam, useQueryParam } from "use-query-params";
 import BlogSelector from "../../../components/blog-selector";
 import Layout from "../../../components/layout";
 import PostPreview from "../../../components/post-preview";
-import Seo from "../../../components/Seo";
+import Seo from "../../../components/seo";
 
 interface TagsProps {
   data: Queries.AllPostTagsQuery;
