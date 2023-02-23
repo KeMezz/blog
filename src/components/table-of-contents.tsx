@@ -18,7 +18,7 @@ const TableOfContents = ({ tableOfContents }: TocProps) => {
       id="toc"
       className="pl-4 my-6 border-l-4 border-cyan-500 hidden lg:flex sticky top-8 flex-col space-y-2"
     >
-      {tableOfContents.map((h1, index) => (
+      {tableOfContents?.map((h1, index) => (
         <div key={index} className="text-xs xl:text-sm">
           <Link to={h1.url}>
             <h1 className={`mb-1 ${h1.url}`}>{h1.title}</h1>
