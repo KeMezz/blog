@@ -17,8 +17,12 @@ const BlogSelector = ({ value }: BlogSelectorProps) => {
       value={value}
     >
       <option value="recent">최근에 올라온 포스트</option>
-      <option value="tag">태그별로 보기</option>
-      <option value="series">시리즈 모아보기</option>
+      <option value="tag" disabled>
+        태그별로 보기
+      </option>
+      <option value="series" disabled>
+        시리즈 모아보기
+      </option>
     </select>
   );
 };
