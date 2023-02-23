@@ -13,7 +13,6 @@ interface LayoutProps {
 }
 
 function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
-  const pathname = window.location.pathname;
   return (
     <main className="min-h-screen bg-white dark:bg-zinc-900">
       <header className="w-full h-28 lg:h-20 bg-white dark:bg-zinc-900 dark:text-white">
@@ -27,12 +26,8 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
           </div>
           {hideNav ? null : (
             <nav className="w-full lg:w-auto h-8 lg:h-auto grid grid-cols-2 place-items-center divide-x divide-gray-300 dark:divide-zinc-900 lg:divide-none">
-              <HeaderLink to="/" title="홈" active={pathname === "/"} />
-              <HeaderLink
-                to="/blog/recent"
-                title="블로그"
-                active={pathname.startsWith("/blog")}
-              />
+              <HeaderLink to="/" title="홈" partiallyActive={false} />
+              <HeaderLink to="/blog" title="블로그" partiallyActive={true} />
               {/* <HeaderLink
                 to="/search"
                 title="검색"
