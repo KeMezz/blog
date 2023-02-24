@@ -1,0 +1,235 @@
+---
+emoji: 🍽️
+title: TanStack React Table v8 - 기본편
+date: "2022-08-24"
+tags: ["개발", "react", "react-table"]
+slug: 2208240
+---
+
+## 개요
+
+### **Headless UI란?**
+
+TanStack Table(이하 react-table)은 스스로를 [Headless UI 라이브러리](https://tanstack.com/table/v8)라고 소개합니다. Headless UI란, UI 엘리먼트와의 상호작용을 위한 로직, 상태, 처리 API 만을 제공하며, 그 이외에 어떠한 마크업이나 스타일, 선탑재 기능 등을 제공하지 않는 라이브러리를 의미합니다. material-ui나 bootstrap 같은 컴포넌트 기반의 라이브러리와 상반되는 개념이라고 봐도 될 것 같네요.
+
+[TanStack Table v8 Documents | What is "headless" UI?](https://tanstack.com/table/v8/docs/guide/introduction#what-is-headless-ui)
+
+### 하나의 거대한 테이블 객체
+
+react-table은 테이블에 표시하고 싶은 데이터를 잘 정리된 하나의 객체로 만들어줍니다. 만드는 방법도 간단합니다! `useReactTable` 훅을 통해 정해진 값만 잘 넘겨주면 테이블 객체를 정의할 수 있습니다. 이렇게 만든 테이블 객체는 react-table에서 제공하는 다양한 메소드들을 포함하게 되는데, 그 중에는 테이블 안의 내용을 출력시키는 함수도 있고, 현재 소팅이나 필터 상태를 출력시켜주는 함수도 있습니다.
+
+사용자의 상호작용으로 인해 테이블의 상태가 달라질때마다 테이블 객체를 구성하는 state가 변화하고, 그 state를 어디서든 뽑아서 쓸 수 있다는 점이 react-table의 작동 방식을 이해하는데 가장 핵심적인 부분입니다. 우리가 일일히 테이블의 상태들을 추적하기 위해 state를 몇 개씩이나 만들어줄 필요가 없어지기 때문입니다. 또한, 테이블 데이터의 사용 자체가 선언적으로 바뀌기 때문에 함수형으로 코딩하기에도 안성맞춤입니다.
+
+### 설치 방법
+
+```bash
+npm install @tanstack/react-table
+```
+
+[TanStack Table v8 Documents | Installation](https://tanstack.com/table/v8/docs/guide/installation)
+
+## 준비 작업
+
+### **Table Data**
+
+> 테이블 안에 들어갈 코어 데이터
+
+```jsx
+const tableData = [
+  {
+    name: "김땡땡",
+    phone: "01012345678",
+    birth: "830309",
+    register_date: "2022-04-06",
+    last_edit_date: "2022-08-24",
+  },
+  /* ... */
+];
+
+const [data, setData] = useState([...tableData]);
+```
+
+테이블에 출력하고 싶은, 예를 들면 서버에서 받아온 데이터 등을 넣어주면 됩니다.
+
+## **Columns**
+
+> Column이란 Column Defs를 반영한 각 컬럼을 의미하며, 컬럼에 특화된 API를 제공합니다.
+
+```jsx
+const columnHelper = createColumnHelper();
+const columns = [
+  columnHelper.accessor("name", { header: "이름" }),
+  columnHelper.accessor("phone", { header: "휴대폰" }),
+  columnHelper.accessor("birth", { header: "생년월일" }),
+  columnHelper.accessor("register_date", { header: "등록일" }),
+  columnHelper.accessor("last_edit_date", { header: "최종수정일" }),
+];
+```
+
+테이블 객체를 만들어서 넘기기 위해, 각 Column Defs를 테이블에 표시하고 싶은 순서에 맞게 하나의 배열로 만들어주면 됩니다.
+
+_[TanStack Table v8 Documents | Column API](https://tanstack.com/table/v8/docs/api/core/column)_
+
+#### Column Defs
+
+> Column Defs란, 각 컬럼과 그 컬럼의 데이터 모델, 화면 구성 등을 설정하는 데 사용하는 객체를 의미합니다.
+
+- Column Defs는 Table Data가 테이블 안에서 어떤 식으로 그려질지를 담는 ‘컬럼 정의’ 객체입니다.
+- 소팅, 필터링, 그룹핑 등 기초 데이터 모델에 사용되며, 테이블 안에 들어가는 데이터 모델을 규격화합니다.
+- 헤더그룹, 헤더, 푸터를 생성할 수 있습니다.
+- 단순 표시 목적의 컬럼 뿐 아니라 버튼, 체크박스, 확장 기능을 가진 컬럼을 정의할 수도 있습니다.
+- 참고로, 컬럼은 테이블에서 세로줄을 의미합니다.
+- 컬럼은 다음의 세 가지 종류로 분류됩니다.
+  1. Accessor Columns
+     - 가공 가능한 데이터 모델을 뿌리기 위한 컬럼입니다.
+     - 소팅, 필터링, 그룹핑이 가능합니다.
+  2. Display Columns
+     - 버튼이나 체크 박스 등 데이터와 상관없이 동일한 엘리먼트를 렌더링 하는 용도로 사용합니다.
+     - 소팅, 필터링, 그룹핑이 불가능합니다.
+  3. Grouping Columns
+     - 컬럼끼리 묶어서 표시하기 위한 컬럼으로 헤더와 푸터에 주로 사용합니다.
+     - 소팅, 필터링, 그룹핑 불가능이 불가능합니다.
+
+_[TanStack Table v8 Documents | Column Defs](https://tanstack.com/table/v8/docs/guide/column-defs)_
+
+#### **Column Helpers**
+
+```jsx
+const columnHelper = createColumnHelper();
+```
+
+Column Defs 객체를 함수형으로 선언할 수 있게 해줍니다. 정확히는 Column Helper를 통해 컬럼 설정값을 담아 호출하면 Column Defs 객체를 반환합니다. 이 문서에서는 Column Helpers를 이용한 방법만 설명할 예정입니다.
+
+```jsx
+const column = columnHelper.accessor("phone");
+```
+
+첫 번째 인자에, 컬럼에 표시하고 싶은 Table Data의 키를 스트링 형태로 전달해주면 됩니다. 만약 데이터가 배열인 경우 키 대신 인덱스를 적어줍니다.
+
+```jsx
+const column = columnHelper.accessor("phone", {
+  header: "이름",
+  cell: ({ renderValue }) =>
+    renderValue().replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3"),
+});
+```
+
+두 번째 인자에는 헤더에 표시할 이름을 정하거나 셀의 형태를 커스터마이즈(Cell Formatting) 하는 등, 각종 설정을 담은 오브젝트를 전달할 수 있습니다. 위의 예제처럼 전화번호 스트링에 정규표현식을 적용하여 출력할 수도 있습니다. 원본 데이터는 그대로 둔 채로요.
+
+### **Table**
+
+> 각종 state와 API를 모두 포함하는 코어 테이블 객체입니다.
+
+```jsx
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+
+// 테이블에 표시할 데이터를 state로 정의
+const [data, setData] = useState([...defaultData]);
+
+// 각 columnHelper(혹은 Column Defs)들을 담은 배열
+const columns = [...]
+
+// useReactTable로 테이블 구조 정의
+const table = useReactTable({
+  data,
+  columns,
+  getCoreRowModel: getCoreRowModel(),
+});
+```
+
+#### `useReactTable` 훅을 이용하여 테이블 객체 생성
+
+테이블 객체는 `useReactTable` 훅을 통해 정의할 수 있습니다. 앞에서 소개한 `data`와 `columns`에 이어 테이블 객체를 만들기 위한 마지막 준비물로서 `getCoreRowModel` 옵션을 추가해줄겁니다. 위처럼 `getCoreRowModel()` 함수를 임포트해서 넣어주면 되고 테이블 객체마다 하나씩 반드시 넣어주어야만 테이블 객체를 눈에 보이는 HTML 테이블로서 출력할 수 있습니다.
+
+이로써 react-table을 이용한 테이블 객체를 만들었습니다!
+
+_[TanStack Table v8 Documents | Table API](https://tanstack.com/table/v8/docs/api/core/table)_
+[TanStack Table v8 Documents | getCoreRowModel](https://tanstack.com/table/v8/docs/api/core/table#getcorerowmodel)
+
+## 테이블 출력
+
+### `getHeaderGroups`, `getFooterGroups`, `getRowModel`
+
+```jsx
+return (
+  <table>
+    <thead>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <tr key={headerGroup.id}>
+          {headerGroup.headers.map((header) => (
+            <th key={header.id}>
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+            </th>
+          ))}
+        </tr>
+      ))}
+    </thead>
+    <tbody>
+      {table.getRowModel().rows.map((row) => (
+        <tr key={row.id}>
+          {row.getVisibleCells().map((cell) => (
+            <td key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+```
+
+`getHeaderGroups`와 `getFooterGroups`, `getRowModel`은 테이블 객체에 정의된 컬럼들을 출력할 때 사용할 배열을 반환합니다. map function을 사용할 수 있도록 id를 제공하기 때문에 위처럼 작성하면 테이블 객체가 우리가 기대한 테이블 형태로 출력되는 것을 확인할 수 있습니다.
+
+_[TanStack Table v8 Documents | HeaderGroup API](https://tanstack.com/table/v8/docs/api/core/header-group)_
+_[TanStack Table v8 Documents | Header API](https://tanstack.com/table/v8/docs/api/core/header)_
+_[TanStack Table v8 Documents | Row API](https://tanstack.com/table/v8/docs/api/core/row)_
+_[TanStack Table v8 Documents | Cell API](https://tanstack.com/table/v8/docs/api/core/cell)_
+
+### Column Sizing 정의
+
+#### columnDefs 설정
+
+```jsx
+const columns = [
+  /* ... */
+  columnHelper.accessor("birth", { header: "생년월일", size: 80 }),
+  columnHelper.accessor("register_date", { header: "등록일", size: 120 }),
+  /* ... */
+];
+```
+
+각 column 설정 시 `size`, `minSize`, `maxSize`의 세 가지 값을 전달할 수 있습니다. 모든 컬럼의 `size` 기본값은 `150`입니다.
+
+```jsx
+return (
+  <table>
+    <thead>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <tr key={headerGroup.id}>
+          {headerGroup.headers.map((header) => (
+            <th style={{ width: header.getSize() }}>{/* ... */}</th>
+          ))}
+        </tr>
+      ))}
+    </thead>
+    {/* ... */}
+  </table>
+);
+```
+
+`th` 태그의 `width`를 `header.getSize()`로 설정해주면 앞서 `columnDefs`에서 정의한 각 컬럼의 `size`를 가져와서 적용시킬 수 있습니다.
+
+```css
+table {
+  width: 100%;
+  /* ... */
+}
+```
+
+또한, `table` 태그의 스타일을 `"100%"`로 설정하면 부모 엘리먼트에 100% 채워진 상태로 사이즈를 비율처럼 조절할 수 있습니다.
