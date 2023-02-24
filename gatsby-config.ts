@@ -26,6 +26,9 @@ const config: GatsbyConfig = {
       options: {
         gatsbyRemarkPlugins: [
           {
+            resolve: `gatsby-remark-embedder`,
+          },
+          {
             resolve: `gatsby-remark-autolink-headers`,
             options: {
               className: `mt-2`,
