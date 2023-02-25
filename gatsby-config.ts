@@ -3,7 +3,7 @@ import type { GatsbyConfig } from "gatsby";
 const config: GatsbyConfig = {
   siteMetadata: {
     title: `dotCache`,
-    siteUrl: `https://main--dotcache.netlify.app/`,
+    siteUrl: `https://dotcache.netlify.app/`,
     description: `그때그때 적어두고, 필요할 때마다 꺼내서 되새길 수 있는 캐시 같은 블로그.`,
   },
   graphqlTypegen: true,
@@ -16,8 +16,8 @@ const config: GatsbyConfig = {
     {
       resolve: "gatsby-plugin-robots-txt",
       options: {
-        host: "https://main--dotcache.netlify.app/",
-        sitemap: "https://main--dotcache.netlify.app//sitemap.xml",
+        host: "https://dotcache.netlify.app/",
+        sitemap: "https://dotcache.netlify.app/sitemap.xml",
         policy: [{ userAgent: "*", allow: "/" }],
       },
     },
