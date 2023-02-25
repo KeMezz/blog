@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "gatsby";
+import { useMediaQuery } from "react-responsive";
 
 interface HeaderLinkProps {
   to: string;
@@ -8,20 +9,7 @@ interface HeaderLinkProps {
 }
 
 const HeaderLink = ({ to, title, partiallyActive }: HeaderLinkProps) => {
-  const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
-
-  const [isDark, setIsDark] = useState(
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-
-  useEffect(() => {
-    const changeColorScheme = () => setIsDark(colorScheme.matches);
-    colorScheme.addEventListener("change", changeColorScheme);
-    return () => {
-      colorScheme.removeEventListener("change", changeColorScheme);
-    };
-  }, [colorScheme]);
-
+  const isDark = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
   return (
     <Link
       to={to}
