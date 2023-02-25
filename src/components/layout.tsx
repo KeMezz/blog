@@ -39,7 +39,10 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
       </header>
       <section className="bg-gray-100 dark:bg-zinc-800 dark:text-white">
         <div
-          className={cls(`max-w-7xl mx-auto`, disablePaddings ? "" : "px-6")}
+          className={cls(
+            `max-w-7xl mx-auto`,
+            disablePaddings ? "" : "px-4 lg:px-6"
+          )}
         >
           {children}
         </div>

@@ -67,7 +67,7 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr,_220px] xl:grid-cols-[1fr,_300px] gap-6 items-start">
-          <article className="bg-white dark:bg-zinc-900 p-6 py-10 lg:p-12 lg:rounded-xl">
+          <article className="bg-white dark:bg-zinc-900 px-4 py-10 lg:p-12 lg:rounded-xl">
             <div className="mb-6">
               <h1 className="border-b-2 pb-4 text-2xl font-semibold mb-4">
                 {title}
