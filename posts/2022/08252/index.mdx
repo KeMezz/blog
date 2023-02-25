@@ -8,16 +8,14 @@ slug: 2208252
 
 https://codesandbox.io/s/react-table-example-filtering-zhetr8?from-embed
 
-## 컬럼 필터 (Column Filter)
-
 `react-table`의 필터는 크게 다음의 [두 가지 종류](https://tanstack.com/table/v8/docs/guide/filters#overview)로 나뉩니다. 본 문서에서는 Column Filter를 위주로 다룰 예정입니다.
 
 1. `Column Filters` : 한 컬럼의 accessor 값에만 적용되는 필터. `state.columnFilters`에 `columnId`와 함께 `array` 타입으로 저장된다.
 2. `Global Filters` : 전체 컬럼의 accessor 값에 적용되는 필터. `state.globalFilters`에 `any` 타입으로 저장된다. (대부분 `string`)
 
-### Column Defs 설정
+## Column Defs 설정
 
-#### enableColumnFilter
+### enableColumnFilter
 
 ```jsx
 const columns = [
@@ -35,7 +33,7 @@ const columns = [
 
 [정렬](https://velog.io/@kemezz/TanStack-React-Table-v8-%EC%A0%95%EB%A0%AC%ED%8E%B8#enablesorting)과 마찬가지로 `enableColumnFilter` 옵션을 통해 컬럼에 컬럼 필터 기능을 사용할지 사용하지 않을지를 선택할 수 있습니다. 마찬가지로 기본값이 `true`입니다.
 
-#### filterFn
+### filterFn
 
 ```jsx
 const columns = [
@@ -46,13 +44,11 @@ const columns = [
 ];
 ```
 
-`filterFn` 옵션을 통해 필터 함수를 지정할 수 있습니다. react-table에서 제공하는 [10개의 기본 필터링 함수](https://tanstack.com/table/v8/docs/api/features/filters#filter-functions) 이름 중 하나를 스트링 형태로 넘기거나, 커스텀 필터를 작성하여 넘기는 것도 가능합니다.
+`filterFn` 옵션을 통해 필터 함수를 지정할 수 있습니다. react-table에서 제공하는 [10개의 기본 필터링 함수](https://tanstack.com/table/v8/docs/api/features/filters#filter-functions) 이름 중 하나를 스트링 형태로 넘기거나, 커스텀 필터를 작성하여 넘기는 것도 가능합니다. [공식 문서](https://tanstack.com/table/v8/docs/api/features/filters#table-options)에 커스텀 필터를 작성하는 방법에 대해 소개하는 부분이 있으므로 참고 바랍니다.
 
-커스텀 필터를 작성하는 방법에 대해서는 별도의 포스팅으로 정리할 예정입니다. 또는 [공식 문서](https://tanstack.com/table/v8/docs/api/features/filters#table-options)에도 커스텀 필터를 작성하는 방법에 대해 소개하는 부분이 있으므로 참고 바랍니다.
+## Table 설정
 
-### Table 설정
-
-#### getFilteredRowModel, getFacetedUniqueValues
+### getFilteredRowModel, getFacetedUniqueValues
 
 ```jsx
 import {
@@ -74,11 +70,12 @@ const table = useReactTable({
 `getFilteredRowModel` 함수를 임포트하여 테이블 선언 시 함께 보내주어야 필터링된 Row Model를 출력할 수 있습니다. `getFacetedUniqueValues`는 각 컬럼 안에 있는 unique한 value들을 종류별로 출력해주는 함수입니다. 컬럼별로 필터 목록을 출력할 때 사용합니다.
 
 [TanStack Table v8 Documents | getFilteredRowModel](https://tanstack.com/table/v8/docs/api/features/filters#getfilteredrowmodel-1)
+
 [TanStack Table v8 Documents | getFactedUniqueValues](https://tanstack.com/table/v8/docs/api/features/filters#getfaceteduniquevalues)
 
-### 필터링 함수 적용
+## 필터링 함수 적용
 
-#### getFacetedUniqueValues
+### getFacetedUniqueValues
 
 ```jsx
 // App.js
@@ -129,7 +126,7 @@ function TableHeader({ header }) {
 
 컬럼별 unique value를 추출하기 위해 먼저 헤더 컴포넌트를 분리해줍니다. `getFacetedUniqueValues` 함수를 이용하면 정말 간단하게 각 컬럼의 unique value들을 배열로 출력할 수 있습니다.
 
-#### getCanFilter, setFilterValue
+### getCanFilter, setFilterValue
 
 ```jsx
 // TableHeader.jsx

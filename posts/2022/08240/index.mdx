@@ -8,7 +8,7 @@ slug: 2208240
 
 https://codesandbox.io/s/react-table-example-basic-6l7htp?from-embed
 
-## 개요
+## TanStack Table
 
 ### Headless UI란?
 
@@ -30,9 +30,7 @@ npm install @tanstack/react-table
 
 [TanStack Table v8 Documents | Installation](https://tanstack.com/table/v8/docs/guide/installation)
 
-## 준비 작업
-
-### Table Data
+## Table Data
 
 > 테이블 안에 들어갈 코어 데이터
 
@@ -72,7 +70,7 @@ const columns = [
 
 _[TanStack Table v8 Documents | Column API](https://tanstack.com/table/v8/docs/api/core/column)_
 
-#### Column Defs
+### Column Defs
 
 > Column Defs란, 각 컬럼과 그 컬럼의 데이터 모델, 화면 구성 등을 설정하는 데 사용하는 객체를 의미합니다.
 
@@ -94,7 +92,7 @@ _[TanStack Table v8 Documents | Column API](https://tanstack.com/table/v8/docs/a
 
 _[TanStack Table v8 Documents | Column Defs](https://tanstack.com/table/v8/docs/guide/column-defs)_
 
-#### Column Helpers
+### Column Helpers
 
 ```jsx
 const columnHelper = createColumnHelper();
@@ -118,7 +116,7 @@ const column = columnHelper.accessor("phone", {
 
 두 번째 인자에는 헤더에 표시할 이름을 정하거나 셀의 형태를 커스터마이즈(Cell Formatting) 하는 등, 각종 설정을 담은 오브젝트를 전달할 수 있습니다. 위의 예제처럼 전화번호 스트링에 정규표현식을 적용하여 출력할 수도 있습니다. 원본 데이터는 그대로 둔 채로요.
 
-### Table
+## Table
 
 > 각종 state와 API를 모두 포함하는 코어 테이블 객체입니다.
 
@@ -139,7 +137,7 @@ const table = useReactTable({
 });
 ```
 
-#### useReactTable 훅을 이용하여 테이블 객체 생성
+### useReactTable 훅을 이용하여 테이블 객체 생성
 
 테이블 객체는 `useReactTable` 훅을 통해 정의할 수 있습니다. 앞에서 소개한 `data`와 `columns`에 이어 테이블 객체를 만들기 위한 마지막 준비물로서 `getCoreRowModel` 옵션을 추가해줄겁니다. 위처럼 `getCoreRowModel()` 함수를 임포트해서 넣어주면 되고 테이블 객체마다 하나씩 반드시 넣어주어야만 테이블 객체를 눈에 보이는 HTML 테이블로서 출력할 수 있습니다.
 
@@ -197,9 +195,9 @@ return (
 
 [TanStack Table v8 Documents | Cell API](https://tanstack.com/table/v8/docs/api/core/cell)
 
-### Column Sizing 정의
+## Column Sizing 정의
 
-#### columnDefs 설정
+### columnDefs 설정
 
 ```jsx
 const columns = [

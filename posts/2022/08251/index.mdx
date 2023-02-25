@@ -6,13 +6,11 @@ tags: ["개발", "react", "react-table"]
 slug: 2208251
 ---
 
-## 정렬 (Sorting)
-
 https://codesandbox.io/s/react-table-example-sorting-8hsjq7?from-embed
 
-### columnDefs 설정
+## columnDefs 설정
 
-#### enableSorting
+### enableSorting
 
 ```jsx
 const columns = [
@@ -30,7 +28,7 @@ const columns = [
 
 `enableSorting` 옵션을 통해 컬럼에 정렬 기능을 사용할지 사용하지 않을지를 선택할 수 있습니다. 예제에서는 이해를 위해 굳이 적었지만 명시하지 않더라도 기본값은 `true`이기 때문에, 정렬을 사용하고 싶지 않은 컬럼에만 `false`를 보내주면 됩니다.
 
-#### sortingFn
+### sortingFn
 
 ```jsx
 const columns = [
@@ -48,9 +46,9 @@ const columns = [
 
 커스텀 정렬을 적용하고 싶다면 [공식 문서](https://tanstack.com/table/v8/docs/api/features/sorting#sorting-functions)를 참고하세요. 정렬 함수의 작성 방법에 대해서 자세히 나와있습니다!
 
-### Table 설정
+## Table 설정
 
-#### getSortedRowModel
+### getSortedRowModel
 
 ```jsx
 import {
@@ -69,9 +67,9 @@ const table = useReactTable({
 
 테이블에 소팅을 적용하기 위해서는 `getSortedRowModel` 함수를 임포트하여 보내줄 필요가 있습니다.
 
-### 정렬 함수 적용
+## 정렬 함수 적용
 
-#### getToggleSortingHandler
+### getToggleSortingHandler
 
 ```jsx
 return (
@@ -99,7 +97,7 @@ return (
 
 테이블 각 컬럼의 헤더 부분에 해당하는 `th` 태그의 `onClick` 이벤트에 `getToggleSortingHandler` 함수를 걸어주면, 헤더를 클릭할 때마다 '오름차순', '내림차순', '정렬안함'의 순서로 정렬이 변경됩니다. 여기까지만 해도 정렬 기능 자체는 완성된겁니다!
 
-#### getCanSort, getIsSorted
+### getCanSort, getIsSorted
 
 ```jsx
 import { FaSortUp, FaSortDown, FaSort } from "react-icons/fa";
