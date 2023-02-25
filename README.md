@@ -4,7 +4,7 @@
   </a>
 </p>
 <h1 align="center">
-  블로그 (개발중⚠️)
+  블로그
 </h1>
 
 ## 👻 소개
@@ -17,8 +17,8 @@
 - TypeScript
 - GraphQL
 - Tailwind CSS
-- utterances
+- giscus
 
 ## 🚀 배포
 
-- netlify로 배포 예정
+https://dotcache.netlify.app/
