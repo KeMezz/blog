@@ -1,0 +1,194 @@
+---
+emoji: 🌮
+title: Typescript Basics
+date: "2022-12-06"
+tags: ["개발", "typescript"]
+slug: 2212061
+---
+
+> 노마드코더의 'Typescript로 블록체인 만들기' 강의를 기반으로 정리한 문서입니다. 정말 좋은 무료 강의니까 관심 있으시면 꼭 한 번 보시길 추천합니다!
+
+## Implicit Types, Explicit Types
+
+```typescript
+let a = [1, 2, 3];
+```
+
+이렇게만 작성해도 타입스크립트는 a라는 변수가 `number[]` 타입이라는 걸 추론(Explicit Types)해서 알 수 있다.
+
+```typescript
+let a: number[] = [];
+a.push("hello"); // error!
+```
+
+그러나 위 상황처럼 필요에 의해 변수를 선언할 때 미리 타입을 명시(Implicit Types) 해줄 수도 있다. a를 선언하면서 a가 `number[]` 타입임을 명시했기 때문에 타입스크립트는 a에 `string` 타입을 푸시하는 함수에 대해 에러를 표시한다.
+
+## optional types
+
+```typescript
+const player: {
+  name: string;
+  age?: number; // equals to `number|undefined`
+} = {
+  name: "hello",
+};
+```
+
+필수적으로 포함해야하는 타입이 아닐 경우에는 `?`를 이용하여 optional한 특성을 나타낼 수 있다. 결국에는 해당 데이터가 `undefined`가 될 수도 있다는 의미를 갖는다.
+
+## type alias
+
+```typescript
+type Age = number;
+type Name = string;
+type Player = {
+  name: Name;
+  age?: Age;
+};
+
+const playerNico: Player = {
+  name: "nico",
+};
+
+const playerLynn: Player = {
+  name: "nico",
+  age: 20,
+};
+```
+
+`type`을 통해 타입 정의를 재사용 할 수 있다.
+
+## return types
+
+```typescript
+type Age = number;
+type Name = string;
+type Player = {
+  name: Name;
+  age?: Age;
+};
+
+// type normal function
+function playerMaker(name: Name): Player {
+  return {
+    name,
+  };
+}
+
+const nico = playerMaker("nico");
+nico.age = 12;
+```
+
+```typescript
+type Age = number;
+type Name = string;
+type Player = {
+  name: Name;
+  age?: Age;
+};
+
+// type arrow function
+const playerMaker = (name: string): Player => ({ name });
+
+const nico = playerMaker("nico");
+nico.age = 12;
+```
+
+함수의 리턴 타입을 정의할 때는 위와 같이 수행한다. `:`을 작성한 뒤에 타입 구조를 달아주는 형식만 기억한다면 대부분 비슷하게 접근하면 된다.
+
+## read-only property (immutability)
+
+```typescript
+type Age = number;
+type Name = string;
+type Player = {
+  readonly name: Name;
+  age?: Age;
+};
+
+const playerMaker = (name: string): Player => ({ name });
+
+const nico = playerMaker("nico");
+
+nico.age = 12;
+nico.name = "hello"; // error! Cannot assign to 'name' because it is a read-only property.
+```
+
+```typescript
+const numbers: readonly number[] = [1, 2, 3, 4];
+numbers.push(1); // error! Property 'push' does not exist on type 'readonly number[]'
+```
+
+readonly로 지정한 데이터는 타입스크립트가 수정하지 못하게 보호하며, 불변성을 가지게 된다.
+
+## tuple
+
+```typescript
+const player: [string, number, boolean] = ["nico", 12, false];
+
+player[0] = "hello";
+player[2] = 123; // error! Type 'number' is not assignable to type 'boolean'.
+```
+
+## any
+
+```typescript
+const a: any[] = [1, 2, 3, 4];
+const b: any = true;
+
+console.log(a + b); // "1,2,3,4true"
+```
+
+타입스크립트에서 탈출하고 싶을 때, 부분적으로 타입스크립트를 비활성화하고 싶을 때 쓰는 타입.
+
+## unknown
+
+```typescript
+let a: unknown;
+
+a = a + 1; // error! 'a' is of type 'unknown'.
+
+if (typeof a === "number") {
+  let b = a + 1;
+}
+
+if (typeof a === "string") {
+  let b = a.toUpperCase();
+}
+```
+
+변수의 타입을 확신할 수 없을 때 사용하는 타입. 타입 확인 작업을 필수적으로 거쳐야만 한다.
+
+## void
+
+```typescript
+function hello() {
+  console.log("hello");
+}
+```
+
+`void`는 아무것도 return하지 않는 함수를 말한다. 타입스크립트는 return하지 않는 함수를 자동으로 인식하기 때문에 굳이 명시해주지 않아도 무관하다. (해줘도 상관은 없다.)
+
+## never
+
+```typescript
+function hello(): never {
+  throw new Error("xxx");
+}
+```
+
+`never`는 함수가 절대 return하지 않을 때 발생한다.
+
+```typescript
+function test(id: string | number) {
+  if (typeof id === "string") {
+    // id is type of "string" here.
+  } else if (typeof id === "number") {
+    // id is type of "number" here.
+  } else {
+    // id is type of "never" here.
+  }
+}
+```
+
+test는 `string|number` 타입을 가진 id라는 파라미터를 받는 함수이다. 타입체킹 중 둘 중 어느 타입도 아닌 문맥에 돌입하면 id의 타입은 `never`라고 표시된다. 타입스크립트는 이와 같은 함수의 실행을 허용하지 않으므로, 절대로 실행될 수 없는 영역에 있다는 뜻이다.
