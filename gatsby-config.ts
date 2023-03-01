@@ -5,6 +5,8 @@ const config: GatsbyConfig = {
     title: `dotCache`,
     siteUrl: `https://dotcache.netlify.app/`,
     description: `그때그때 캐싱해두고 필요할 때 꺼내먹는 블로그`,
+    image: `/thumbnail.jpg`,
+    icon: `/icon.png`,
   },
   graphqlTypegen: true,
   plugins: [
