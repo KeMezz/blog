@@ -16,21 +16,21 @@ function Seo({ title, description, datePublished }: SeoProps) {
           title
           description
           siteUrl
+          image
         }
       }
     }
   `);
   const siteTitle = `${title} | ${data.site?.siteMetadata?.title}`;
-  const summaryImageUrl = `https://raw.githubusercontent.com/KeMezz/kemezz-developer-blog/main/src/images/meta/og-thumbnail.jpg?token=GHSAT0AAAAAAB5YLYA2GE5TVID7SNGZLEN6Y77LUVA`;
   return (
     <>
       <meta property="og:title" content={siteTitle} />
       <meta property="og:url" content={data.site?.siteMetadata?.siteUrl!} />
-      <meta property="og:image" content={summaryImageUrl} />
+      <meta property="og:image" content={data.site?.siteMetadata?.image!} />
       <meta property="og:type" content="blog" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={siteTitle} />
-      <meta name="twitter:image" content={summaryImageUrl} />
+      <meta name="twitter:image" content={data.site?.siteMetadata?.image!} />
       <meta
         name="description"
         content={description ?? data.site?.siteMetadata?.description!}
