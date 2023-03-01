@@ -4,7 +4,7 @@ const config: GatsbyConfig = {
   siteMetadata: {
     title: `dotCache`,
     siteUrl: `https://dotcache.netlify.app/`,
-    description: `그때그때 적어두고, 필요할 때마다 꺼내서 되새길 수 있는 캐시 같은 블로그.`,
+    description: `그때그때 캐싱해두고 필요할 때 꺼내먹는 블로그`,
   },
   graphqlTypegen: true,
   plugins: [
