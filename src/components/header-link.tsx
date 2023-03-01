@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { Link } from "gatsby";
 import { useMediaQuery } from "react-responsive";
 
@@ -13,7 +13,7 @@ const HeaderLink = ({ to, title, partiallyActive }: HeaderLinkProps) => {
   const isMobile = useMediaQuery({ query: "(max-width: 1025px)" });
   const [activeBgColor, setActiveBgColor] = useState("");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if ((!isMobile && isDark) || (isDark && isMobile)) {
       console.log("1");
       setActiveBgColor("#18181b");
