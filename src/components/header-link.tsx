@@ -15,10 +15,8 @@ const HeaderLink = ({ to, title, partiallyActive }: HeaderLinkProps) => {
 
   useLayoutEffect(() => {
     if ((!isMobile && isDark) || (isDark && isMobile)) {
-      console.log("1");
       setActiveBgColor("#18181b");
     } else if ((!isDark && !isMobile) || (!isDark && isMobile)) {
-      console.log("2");
       setActiveBgColor("#ffffff");
     }
   }, [isDark, isMobile]);
