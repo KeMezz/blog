@@ -120,12 +120,19 @@ export const query = graphql`
         tags
       }
       tableOfContents
+      excerpt
     }
   }
 `;
 
 export const Head = ({ data }: { data: Queries.PostDetailQuery }) => (
-  <Seo title={data.mdx?.frontmatter?.title!} />
+  <>
+    <Seo
+      title={data.mdx?.frontmatter?.title!}
+      description={data.mdx?.excerpt!}
+      datePublished={data.mdx?.frontmatter?.date!}
+    />
+  </>
 );
 
 export default PostDetail;
