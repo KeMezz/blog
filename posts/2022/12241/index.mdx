@@ -1,70 +1,85 @@
 ---
-emoji: 🐙
-title: Node Modules 1 - os, process, path
+emoji: 📁
+title: Node Modules 2 - fs (file system)
 date: "2022-12-24"
 tags: ["개발", "nodejs"]
 slug: 2212241
 ---
 
-## os
+## file 동기와 비동기
+
+fs 모듈 내의 함수들은 보통 아래와 같은 세 가지의 형태로 제공된다.
 
 ```javascript
-const os = require("os");
+const fs = require("fs");
 
-os.cpus(); // 각 cpu 논리 코어의 배열 반환.
-os.EOL; // 각 운영체제별 줄바꿈 스트링 반환. 맥은 "\n", 윈도우는 "\r\n".
+fs.renameSync("./file.txt", "./file-new.txt"); // 파일명이 존재하지 않으면 crash 발생.
+
+try {
+  renameSync("./file.txt", "./file-new.txt");
+} catch (error) {
+  console.error(error);
+}
 ```
 
-주로 서버가 동작하고 있는 시스템 환경에 대한 정보를 얻어오고 싶을 때 사용하는 모듈이다.
-
-## process
+메소드 이름 뒤에 sync가 붙는 형태의 함수는 비동기 처리를 하지 않는 함수로서 오류가 발생할 가능성이 있을 때는 반드시 try, catch문으로 감싸주어야 한다. 일반적으로는 굳이 sync를 사용할 이유는 없다.
 
 ```javascript
-const process = require("process");
+const fs = require("fs");
 
-process.execPath; // 노드가 저장된 디렉토리 반환.
-process.version; // 노드 버전 반환
+fs.rename("./file.txt", "./file-new.txt", (error) => console.error(error));
 ```
+
+그냥 rename은 비동기 함수로서 콜백 함수를 전달 받게 된다. 보통 에러 발생 시 실행될 함수를 작성한다.
 
 ```javascript
-const process = require("process");
+const fs = require("fs");
 
-setTimeout(() => console.log("setTimeout"), 0);
-process.nextTick(() => console.log("nextTick")); // setTimeout보다 nextTick이 먼저 실행됨.
+fs.promises
+  .rename("./file.txt", "./file-new.txt")
+  .then(() => console.log("Done!"))
+  .catch(console.error);
 ```
 
-현재 동작하고 있는 노드 프로세스에 대한 정보를 얻을 수 있는 모듈이다. 그 중에서도 nextTick은 call stack이 모두 비워진 이후에 task queue가 실행되는 과정에서 가장 우선적으로 함수를 실행한다. 위 예제처럼 setTimeout 등 보다 우선적으로 실행된다.
+`fs.promises` 에 있는 함수들은 위처럼 promise 형태로 수행할 수 있는 함수들이다.
 
-## path
+## fs.promises
+
+### readFile
 
 ```javascript
-const path = require("path");
+const fs = require("fs").promises;
 
-console.log(__dirname); // 현재 노드가 실행되고 있는 디렉토리 반환.
-console.log(__filename); // 현재 노드가 실행되고 있는 디렉토리를 파일 이름까지 포함하여 반환.
+fs.readFile("./text.txt")
+  .then((data) => console.log(data)) // Buffer 형태로 반환.
+  .catch(console.error);
 
-console.log(path.seq); // 시스템의 경로 구분자 반환.
-console.log(path.delimiter); // 시스템의 환경 변수 구분자 반환.
-
-console.log(path.basename(__filename)); // 노드가 실행된 파일 이름을 확장자 포함하여 반환.
-console.log(path.basename(__filename, ".js")); // 두 번째 인자(확장자)를 제외하고 반환.
-
-console.log(path.dirname(__filename)); // 전달 받은 파일명 스트링의 디렉토리 반환.
-console.log(path.extname(__filename)); // 전달 받은 파일명 스트링의 확장자 반환.
-
-const parsed = path.parse(__filename);
-console.log(parsed); // 전달 받은 파일명 스트링의 오브젝트 형태로 상세한 정보 전달.
-
-const str = path.format(parsed);
-console.log(str); // 파싱된 오브젝트를 다시 스트링 형태로 포맷.
-
-console.log(path.isAbsolute(__dirname)); // true
-console.log(path.isAbsolute("../")); // false
-
-console.log(path.normalize("./folder////text.txt")); // './folder/text.txt'
-
-console.log(__dirname + path.sep + "image"); // '/Users/hyeongjin/node/image'
-console.log(path.join(___dirname, "image")); // 위와 동일한 결과 반환
+fs.readFile("./text.txt", { encoding: "utf8" })
+  .then((data) => console.log(data)) // utf-8로 인코딩 되어 변환.
+  .catch(console.error);
 ```
 
-파일 경로에 대한 작업을 수행할 때 이용하게 되는 모듈로, 운영체제 별로 다른 패스 표기법을 작성할 수 있도록 다양한 메소드가 내장되어 있다.
+readFile은 그냥 실행하면 Buffer 형태로 반환하는데, 두 번째 인자로 option을 전달할 수 있다. 예시처럼 인코딩 형태를 명시해주면 원하는 인코딩 형태로 파일을 읽을 수 있다.
+
+### writeFile, appendFile
+
+```javascript
+const fs = require("fs").promises;
+
+fs.writeFile("./file.txt", "Hello!").catch(console.error);
+fs.appendFile("./file.txt", "\nHello from here too!").catch(console.error);
+```
+
+writeFile은 첫 번째 인자에 있는 경로의 파일을 두 번째 인자로 덮어쓰게 된다. 반환 형태는 void라서 따로 출력되는 것은 없으나 then을 통해서 실행된 이후에 비동기적으로 실행하고 싶은 구문을 작성할 수도 있다. 만약 덮어쓰는 게 아니라 파일 뒤에 추가로 붙여넣고 싶다면 appendFile을 쓰면 된다.
+
+### copyFile
+
+```javascript
+const fs = require("fs").promises;
+
+fs.copyFile("./file.txt", "./file2.txt").catch(console.error);
+fs.mkdir('folder').catch(console.error);
+fs.readdir('./')..then(console.log).catch(console.error);
+```
+
+copyFile은 첫 번째 인자로 전달받은 파일을 두 번째 인자의 디렉토리로 복사한다. mkdir은 요청한 명칭의 폴더를 만들어준다. readdir은 요청한 디렉토리 내의 모든 파일과 폴더의 이름을 배열 형태로 출력한다.

@@ -1,6 +1,6 @@
 ---
 emoji: 🌮
-title: Typescript Basics
+title: Typescript and functions
 date: "2022-12-06"
 tags: ["개발", "typescript"]
 slug: 2212061
@@ -8,187 +8,169 @@ slug: 2212061
 
 > 노마드코더의 'Typescript로 블록체인 만들기' 강의를 기반으로 정리한 문서입니다. 정말 좋은 무료 강의니까 관심 있으시면 꼭 한 번 보시길 추천합니다!
 
-## Implicit Types, Explicit Types
+## call signature
+
+함수를 어떻게 호출해야 하는지, 어떤 타입을 반환하는지를 정의한 것을 call signature라고 부른다.
 
 ```typescript
-let a = [1, 2, 3];
+type Add = (a: number, b: number) => number;
+const add: Add = (a, b) => a + b;
 ```
 
-이렇게만 작성해도 타입스크립트는 a라는 변수가 `number[]` 타입이라는 걸 추론(Explicit Types)해서 알 수 있다.
+위처럼 type alias를 통해 미리 정의해두면 함수를 선언할 때 타입을 미리 지정해둘 수 있으므로, 타입을 먼저 생각하면서 코드를 구현할 수 있다.
+
+## overloading
+
+overloading은 함수가 서로 다른 여러 개의 call signature를 가지고 있을 때 발생한다. 직접 사용할 일이 많지 않을 수도 있지만, 대부분의 npm 라이브러리는 overloading을 사용하므로 알아둘 필요가 있다.
 
 ```typescript
-let a: number[] = [];
-a.push("hello"); // error!
+// in Next.js environment
+Router.push("/home");
+Router.push({
+  path: "/home",
+  state: 1,
+});
 ```
 
-그러나 위 상황처럼 필요에 의해 변수를 선언할 때 미리 타입을 명시(Implicit Types) 해줄 수도 있다. a를 선언하면서 a가 `number[]` 타입임을 명시했기 때문에 타입스크립트는 a에 `string` 타입을 푸시하는 함수에 대해 에러를 표시한다.
-
-## optional types
+Next.js에서 사용하는 Router도 대표적인 overloading의 예시이다. Router의 파라미터는 string만 입력해도 작동하지만, 미리 정해진 오브젝트 형식으로 입력해도 잘 작동한다.
 
 ```typescript
-const player: {
-  name: string;
-  age?: number; // equals to `number|undefined`
-} = {
-  name: "hello",
-};
-```
-
-필수적으로 포함해야하는 타입이 아닐 경우에는 `?`를 이용하여 optional한 특성을 나타낼 수 있다. 결국에는 해당 데이터가 `undefined`가 될 수도 있다는 의미를 갖는다.
-
-## type alias
-
-```typescript
-type Age = number;
-type Name = string;
-type Player = {
-  name: Name;
-  age?: Age;
+type Config = {
+  path: string;
+  state: any;
 };
 
-const playerNico: Player = {
-  name: "nico",
+type Push = {
+  (path: string): void;
+  (config: Config): void;
 };
 
-const playerLynn: Player = {
-  name: "nico",
-  age: 20,
-};
-```
-
-`type`을 통해 타입 정의를 재사용 할 수 있다.
-
-## return types
-
-```typescript
-type Age = number;
-type Name = string;
-type Player = {
-  name: Name;
-  age?: Age;
-};
-
-// type normal function
-function playerMaker(name: Name): Player {
-  return {
-    name,
-  };
-}
-
-const nico = playerMaker("nico");
-nico.age = 12;
-```
-
-```typescript
-type Age = number;
-type Name = string;
-type Player = {
-  name: Name;
-  age?: Age;
-};
-
-// type arrow function
-const playerMaker = (name: string): Player => ({ name });
-
-const nico = playerMaker("nico");
-nico.age = 12;
-```
-
-함수의 리턴 타입을 정의할 때는 위와 같이 수행한다. `:`을 작성한 뒤에 타입 구조를 달아주는 형식만 기억한다면 대부분 비슷하게 접근하면 된다.
-
-## read-only property (immutability)
-
-```typescript
-type Age = number;
-type Name = string;
-type Player = {
-  readonly name: Name;
-  age?: Age;
-};
-
-const playerMaker = (name: string): Player => ({ name });
-
-const nico = playerMaker("nico");
-
-nico.age = 12;
-nico.name = "hello"; // error! Cannot assign to 'name' because it is a read-only property.
-```
-
-```typescript
-const numbers: readonly number[] = [1, 2, 3, 4];
-numbers.push(1); // error! Property 'push' does not exist on type 'readonly number[]'
-```
-
-readonly로 지정한 데이터는 타입스크립트가 수정하지 못하게 보호하며, 불변성을 가지게 된다.
-
-## tuple
-
-```typescript
-const player: [string, number, boolean] = ["nico", 12, false];
-
-player[0] = "hello";
-player[2] = 123; // error! Type 'number' is not assignable to type 'boolean'.
-```
-
-## any
-
-```typescript
-const a: any[] = [1, 2, 3, 4];
-const b: any = true;
-
-console.log(a + b); // "1,2,3,4true"
-```
-
-타입스크립트에서 탈출하고 싶을 때, 부분적으로 타입스크립트를 비활성화하고 싶을 때 쓰는 타입.
-
-## unknown
-
-```typescript
-let a: unknown;
-
-a = a + 1; // error! 'a' is of type 'unknown'.
-
-if (typeof a === "number") {
-  let b = a + 1;
-}
-
-if (typeof a === "string") {
-  let b = a.toUpperCase();
-}
-```
-
-변수의 타입을 확신할 수 없을 때 사용하는 타입. 타입 확인 작업을 필수적으로 거쳐야만 한다.
-
-## void
-
-```typescript
-function hello() {
-  console.log("hello");
-}
-```
-
-`void`는 아무것도 return하지 않는 함수를 말한다. 타입스크립트는 return하지 않는 함수를 자동으로 인식하기 때문에 굳이 명시해주지 않아도 무관하다. (해줘도 상관은 없다.)
-
-## never
-
-```typescript
-function hello(): never {
-  throw new Error("xxx");
-}
-```
-
-`never`는 함수가 절대 return하지 않을 때 발생한다.
-
-```typescript
-function test(id: string | number) {
-  if (typeof id === "string") {
-    // id is type of "string" here.
-  } else if (typeof id === "number") {
-    // id is type of "number" here.
+const push: Push = (config) => {
+  if (typeof config === "string") {
+    console.log(config); // config is string here.
   } else {
-    // id is type of "never" here.
+    console.log(config.path); // config is object(Config) here.
+    console.log(config.state);
   }
+};
+```
+
+실제 Router와는 다른 부분이 있지만, 라이브러리 내부적으로는 이런 식으로 overloading을 사용하여 타입을 정의했을 것이다.
+
+```typescript
+type Add = {
+  (a: number, b: number): number;
+  (a: number, b: number, c: number): number;
+};
+
+const add: Add = (a, b, c?: number) => {
+  if (c) return a + b + c;
+  return a + b;
+};
+
+add(1, 2);
+add(1, 2, 3);
+```
+
+아니면 이처럼 파라미터의 개수가 달라지는 경우도 overloading에 해당한다. 서로 다른 개수의 파라미터를 받는 함수의 경우에는 추가 파라미터에 대해서도 반드시 타입을 지정해주어야 한다. 파라미터의 개수가 달라진다는 것은 결국 몇 가지 파라미터는 optional하게 들어온다는 뜻인데, 위의 예제에서는 파라미터 c가 이에 해당한다. 이런 경우에는 반드시 c가 optional하게 들어올 수 있는 number 타입이라는 사실을 함수 선언 시 기재해주어야 한다.
+
+## polymorphism
+
+다형성(polymorphism)이란, 앞서 overloading에서 살펴본 것처럼 파라미터의 형태가 달라지거나, 개수가 달라지는 경우 등 함수가 다양한 형태의 파라미터를 포용할 수 있는 특성을 말한다. 예를 들어, 어떤 배열이든 콘솔에 그 내용을 전부 출력시키는 함수를 만든다고 가정해보자.
+
+```typescript
+type SuperPrint = {
+  <T>(arr: T[]): void;
+};
+
+const superPrint: SuperPrint = (arr) => {
+  arr.forEach((i) => console.log(i));
+};
+
+superPrint([true, false, true]);
+superPrint([1, 2, 3, 4]);
+superPrint(["a", "b", "c"]);
+superPrint(["1", "a", true, 9]);
+```
+
+여기서 `<T>` 는 제네릭 타입을 의미하는데, 위처럼 작성하면 모든 상황에 대한 call signature를 작성해줄 필요 없이 타입스크립트가 알아서 파라미터로 입력된 값을 통해 유연하게 타입을 추론한다. 꺽쇄 안에 들어가는 문자는 대문자로 시작한다면 어떤 것이 되도 상관 없다. (주로 예시처럼 `<T>`를 많이 사용한다.)
+
+```typescript
+type SuperPrint = {
+  <T>(arr: T[]): T;
+};
+
+const superPrint: SuperPrint = (arr) => arr[0];
+
+const a = superPrint([true, false, true]); // a is type of boolean
+const b = superPrint([1, 2, 3, 4]); // b is type of number
+const c = superPrint(["a", "b", "c"]); // c is type of string
+const d = superPrint(["1", "a", true, 9]); // d is type of string|boolean|number
+```
+
+좀 더 알기 쉽게 설명하자면 위와 같다. 결과 타입을 같은 문맥의 제네릭으로 변경하고, 각 배열의 첫 번째 인자를 리턴하는 함수로 변경하였을때, 타입스크립트는 함수 결과 타입을 위와 같이 추론한다.
+
+## generics
+
+```typescript
+type SuperPrint = <T, M>(arr: T[], b: M) => T;
+
+const superPrint: SuperPrint = (arr) => arr[0];
+
+const a = superPrint([true, false, true], "x");
+const b = superPrint([1, 2, 3, 4], 1);
+const c = superPrint(["a", "b", "c"], false);
+const d = superPrint(["1", "a", true, 9], []);
+```
+
+위처럼 여러 개의 제네릭 타입을 사용할 수도 있다. 파라미터로서 입력 받은 값에 의해 타입을 추론하기 때문에 설명할 필요 없이 꺽쇄 안에서 제네릭 사용을 선언한 뒤 순서만 잘 지정해준다면 문제 없이 동작할 것이다.
+
+```typescript
+type Player<E> = {
+  name: string;
+  extraInfo: E;
+};
+
+const nico: Player<{ favFood: string }> = {
+  name: "nico",
+  extraInfo: { favFood: "kimchi" },
+};
+```
+
+이번엔 조금 다른 예시를 들어보자면, 제네릭은 파라미터처럼 활용할 수도 있다. Player라는 타입에서 extraInfo는 제네릭 타입이라고 가정해보겠다. 그러면 위처럼 Player 타입을 통해 새로운 객체를 선언할 때, 제네릭에 원하는 형식을 지정하여 선언하는 것이 가능하다.
+
+```typescript
+type Player<E> = {
+  name: string;
+  extraInfo: E;
+};
+
+type NicoExtra = { favFood: string };
+
+const nico: Player<NicoExtra> = {
+  name: "nico",
+  extraInfo: {
+    favFood: "kimchi",
+  },
+};
+
+const lynn: Player<string> = {
+  name: "lynn",
+  extraInfo: "strong",
+};
+
+const hyeongjin: Player<null> = {
+  name: "hyeongjin",
+  extraInfo: null,
+};
+```
+
+조금 더 정리하자면 위와 같다. 첫 예시로 객체를 들었을 뿐, lynn player처럼 string이 올 수도 있고, hyeongjin처럼 null이 올 수도 있다. 제네릭이기 때문에 입력받은 어떤 타입이든 가능하다.
+
+```typescript
+function printAllNumbers(arr: Array<number>) {
+  arr.forEach((i) => console.log(i));
 }
 ```
 
-test는 `string|number` 타입을 가진 id라는 파라미터를 받는 함수이다. 타입체킹 중 둘 중 어느 타입도 아닌 문맥에 돌입하면 id의 타입은 `never`라고 표시된다. 타입스크립트는 이와 같은 함수의 실행을 허용하지 않으므로, 절대로 실행될 수 없는 영역에 있다는 뜻이다.
+다른 예시. Array도 내부적으로는 제네릭을 받기 때문에 위처럼 사용할 수도 있다. `number[]`와 `Array<number>`는 기본적으로 동일한 의미가 된다. 제네릭은 이런 식으로 정말 많이 사용하게 된다.

@@ -1,144 +1,158 @@
 ---
-emoji: 🌂
-title: TanStack React Table v8 - 정렬 (Sorting)
+emoji: 💿
+title: TanStack React Table v8 - 컬럼 필터
 date: "2022-08-25"
 tags: ["개발", "react", "react-table"]
 slug: 2208251
 ---
 
-https://codesandbox.io/s/react-table-example-sorting-8hsjq7?from-embed
+https://codesandbox.io/s/react-table-example-filtering-zhetr8?from-embed
 
-## columnDefs 설정
+`react-table`의 필터는 크게 다음의 [두 가지 종류](https://tanstack.com/table/v8/docs/guide/filters#overview)로 나뉩니다. 본 문서에서는 Column Filter를 위주로 다룰 예정입니다.
 
-### enableSorting
+1. `Column Filters` : 한 컬럼의 accessor 값에만 적용되는 필터. `state.columnFilters`에 `columnId`와 함께 `array` 타입으로 저장된다.
+2. `Global Filters` : 전체 컬럼의 accessor 값에 적용되는 필터. `state.globalFilters`에 `any` 타입으로 저장된다. (대부분 `string`)
+
+## Column Defs 설정
+
+### enableColumnFilter
 
 ```jsx
 const columns = [
   columnHelper.accessor("name", {
     header: "이름",
-    enableSorting: true,
+    enableColumnFilter: true,
   }),
   columnHelper.accessor("phone", {
     header: "휴대폰",
-    enableSorting: false,
+    enableColumnFilter: false,
   }),
   /* ... */
 ];
 ```
 
-`enableSorting` 옵션을 통해 컬럼에 정렬 기능을 사용할지 사용하지 않을지를 선택할 수 있습니다. 예제에서는 이해를 위해 굳이 적었지만 명시하지 않더라도 기본값은 `true`이기 때문에, 정렬을 사용하고 싶지 않은 컬럼에만 `false`를 보내주면 됩니다.
+[정렬](https://velog.io/@kemezz/TanStack-React-Table-v8-%EC%A0%95%EB%A0%AC%ED%8E%B8#enablesorting)과 마찬가지로 `enableColumnFilter` 옵션을 통해 컬럼에 컬럼 필터 기능을 사용할지 사용하지 않을지를 선택할 수 있습니다. 마찬가지로 기본값이 `true`입니다.
 
-### sortingFn
+### filterFn
 
 ```jsx
 const columns = [
   columnHelper.accessor("name", {
     header: "이름",
-    size: 60,
-    enableSorting: true,
-    sortingFn: "auto",
+    filterFn: "equalsString",
   }),
-  /* ... */
 ];
 ```
 
-`sortingFn` 옵션을 통해 컬럼에 적용하고 싶은 정렬 함수를 지정해 줄 수 있습니다. 기본으로 제공하는 제공하는 여섯 개의 함수명 중 하나를 스트링 형식으로 넘겨도 되지만, 기본값인 `"auto"`로도 대부분 개발자의 의도대로 잘 작동하기 때문에 특수한 정렬 방법을 사용하는 것이 아니라면 굳이 작성하지 않아도 괜찮습니다.
-
-커스텀 정렬을 적용하고 싶다면 [공식 문서](https://tanstack.com/table/v8/docs/api/features/sorting#sorting-functions)를 참고하세요. 정렬 함수의 작성 방법에 대해서 자세히 나와있습니다!
+`filterFn` 옵션을 통해 필터 함수를 지정할 수 있습니다. react-table에서 제공하는 [10개의 기본 필터링 함수](https://tanstack.com/table/v8/docs/api/features/filters#filter-functions) 이름 중 하나를 스트링 형태로 넘기거나, 커스텀 필터를 작성하여 넘기는 것도 가능합니다. [공식 문서](https://tanstack.com/table/v8/docs/api/features/filters#table-options)에 커스텀 필터를 작성하는 방법에 대해 소개하는 부분이 있으므로 참고 바랍니다.
 
 ## Table 설정
 
-### getSortedRowModel
+### getFilteredRowModel, getFacetedUniqueValues
 
 ```jsx
 import {
   getCoreRowModel,
-  getSortedRowModel,
+  getFilteredRowModel,
+  getFacetedUniqueValues
   useReactTable,
 } from "@tanstack/react-table";
-
+/* ... */
 const table = useReactTable({
   data,
   columns,
   getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-});
+  getFilteredRowModel: getFilteredRowModel(),
+  getFacetedUniqueValues: getFacetedUniqueValues(),
+})
 ```
 
-테이블에 소팅을 적용하기 위해서는 `getSortedRowModel` 함수를 임포트하여 보내줄 필요가 있습니다.
+`getFilteredRowModel` 함수를 임포트하여 테이블 선언 시 함께 보내주어야 필터링된 Row Model를 출력할 수 있습니다. `getFacetedUniqueValues`는 각 컬럼 안에 있는 unique한 value들을 종류별로 출력해주는 함수입니다. 컬럼별로 필터 목록을 출력할 때 사용합니다.
 
-## 정렬 함수 적용
+[TanStack Table v8 Documents | getFilteredRowModel](https://tanstack.com/table/v8/docs/api/features/filters#getfilteredrowmodel-1)
 
-### getToggleSortingHandler
+[TanStack Table v8 Documents | getFactedUniqueValues](https://tanstack.com/table/v8/docs/api/features/filters#getfaceteduniquevalues)
+
+## 필터링 함수 적용
+
+### getFacetedUniqueValues
 
 ```jsx
-return (
-  /* ... */
-  <thead>
-    {table.getHeaderGroups().map((headerGroup) => (
-      <tr key={headerGroup.id}>
-        {headerGroup.headers.map((header) => (
-          <th
-            key={header.id}
-            style={{ width: header.getSize() }}
-            onClick={header.column.getToggleSortingHandler()}
-          >
-            {header.isPlaceholder
-              ? null
-              : flexRender(header.column.columnDef.header, header.getContext())}
-          </th>
-        ))}
-      </tr>
-    ))}
-  </thead>
-  /* ... */
-);
+// App.js
+<thead>
+  {table.getHeaderGroups().map((headerGroup) => (
+    <tr key={headerGroup.id}>
+      {headerGroup.headers.map((header) => (
+        <TableHeader header={header} key={header.id} />
+      ))}
+    </tr>
+  ))}
+</thead>
 ```
-
-테이블 각 컬럼의 헤더 부분에 해당하는 `th` 태그의 `onClick` 이벤트에 `getToggleSortingHandler` 함수를 걸어주면, 헤더를 클릭할 때마다 '오름차순', '내림차순', '정렬안함'의 순서로 정렬이 변경됩니다. 여기까지만 해도 정렬 기능 자체는 완성된겁니다!
-
-### getCanSort, getIsSorted
 
 ```jsx
-import { FaSortUp, FaSortDown, FaSort } from "react-icons/fa";
-/* ... */
-return (
-  /* ... */
-  <thead>
-    {table.getHeaderGroups().map((headerGroup) => (
-      <tr key={headerGroup.id}>
-        {headerGroup.headers.map((header) => (
-          <th
-            key={header.id}
-            style={{
-              width: header.getSize(),
-              cursor: header.column.getCanSort() ? "pointer" : "default",
-            }}
-            onClick={header.column.getToggleSortingHandler()}
-          >
-            {header.isPlaceholder
-              ? null
-              : flexRender(header.column.columnDef.header, header.getContext())}
-            {
-              {
-                asc: <FaSortUp />,
-                desc: <FaSortDown />,
-              }[header.column.getIsSorted()]
-            }
-            {header.column.getCanSort() && !header.column.getIsSorted() ? (
-              <FaSort />
-            ) : null}
-          </th>
-        ))}
-      </tr>
-    ))}
-  </thead>
-  /* ... */
-);
+// TableHeader.jsx
+function TableHeader({ header }) {
+  const sortedUniqueValues = useMemo(
+    () => Array.from(header.column.getFacetedUniqueValues().keys()).sort(),
+    [header.column]
+  );
+
+  return (
+    <th
+      key={header.id}
+      style={{
+        width: header.getSize(),
+        cursor: header.column.getCanSort() ? "pointer" : "default",
+      }}
+      onClick={header.column.getToggleSortingHandler()}
+    >
+      {header.isPlaceholder
+        ? null
+        : flexRender(header.column.columnDef.header, header.getContext())}
+      {
+        {
+          asc: <FaSortUp />,
+          desc: <FaSortDown />,
+        }[header.column.getIsSorted()]
+      }
+      {header.column.getCanSort() && !header.column.getIsSorted() ? (
+        <FaSort />
+      ) : null}
+    </th>
+  );
+}
 ```
 
-`getCanSort` 함수는 columnDefs에서 정의한 컬럼 설정을 바탕으로 해당 컬럼이 정렬 가능한 컬럼인지 아닌지를 반환하는 함수입니다. `getIsSorted` 함수는 호출된 컬럼의 소팅 상태를 반환해주는 함수로, 오름차순일때는 `'asc'`, 내림차순일때는 `'desc'`, 정렬이 적용되지 않은 상태일때는 `false`를 반환합니다.
+컬럼별 unique value를 추출하기 위해 먼저 헤더 컴포넌트를 분리해줍니다. `getFacetedUniqueValues` 함수를 이용하면 정말 간단하게 각 컬럼의 unique value들을 배열로 출력할 수 있습니다.
 
-이 둘을 잘 활용하면 예제처럼 정렬 상태에 따른 스타일링이 가능합니다. react-table은 Headless UI 라이브러리이기 때문에 어떤 스타일을 적용하든 편견을 가지지 않으므로 디자인 자유도가 굉장히 높습니다.
+### getCanFilter, setFilterValue
 
-[TanStack Table v8 Documents | Sorting API](https://tanstack.com/table/v8/docs/api/features/sorting)
+```jsx
+// TableHeader.jsx
+const onFilterChange = (value) => {
+  if (value === "null") {
+    header.column.setFilterValue(null);
+  } else {
+    header.column.setFilterValue(value);
+  }
+};
+```
+
+```jsx
+// TableHeader.jsx
+{
+  header.column.getCanFilter() ? (
+    <select onChange={({ currentTarget: { value } }) => onFilterChange(value)}>
+      <option value="null">선택 안함</option>
+      {sortedUniqueValues.map((value) => (
+        <option key={value}>{value}</option>
+      ))}
+    </select>
+  ) : null;
+}
+```
+
+`getCanFilter`는 해당 컬럼이 필터링 가능한 컬럼인지 아닌지를 반환하는 함수로, 여기서는 필터링이 불가능한 컬럼에는 필터링 엘리먼트를 표시하지 않기 위해 사용했습니다. `setFilterValue`는 필터값을 지정해주는 함수로, 다양한 방식으로 필터값을 지정해줄 수 있습니다. 예제에서는 선택지 국룰인 select 태그를 이용하여 unique value 중 하나를 filterValue로 지정할 수 있는 로직을 만들어보았습니다. 이로써 간단하게 필터 기능까지 완성되었습니다!
+
+[TanStack Table v8 Documents | Filters](https://tanstack.com/table/v8/docs/guide/filters#overview)
