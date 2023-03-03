@@ -1,0 +1,135 @@
+---
+emoji: 💉
+title: express-validator를 이용한 익스프레스 서버 유효성 검사
+date: "2023-03-03"
+tags: ["개발", "express", "express-validator"]
+slug: 2303030
+---
+
+## express-validator
+
+```sh
+yarn add express-validator
+```
+
+만약 express만을 이용해서 유효성 검사를 하게 된다면 if문을 사용하여 모든 요청에 대해 일일히 검사해주어야 하는데, 이를 훨씬 간편하게 해주는 라이브러리가 바로 express-validator이다. 자주 사용하는 유효성 검사에 대한 룰을 모두 갖추고 있기 때문에 코드가 훨씬 간결해진다.
+
+[express-validator](https://express-validator.github.io/docs/)
+
+## 사용 방법
+
+```javascript
+import { body } from "express-validator";
+
+app.post("/users", body("name").isLength({ min: 2, max: 10 }), (req, res) => {
+  res.sendStatus(201);
+});
+```
+
+사용법도 아주 간단한데, 기존에 `(req, res, next) => {}`를 적던 콜백함수 앞에 유효성 검사를 위한 콜백 함수를 하나 더 적어주면 된다. 위처럼 적으면 `req.body.name`의 길이가 최소 2이상, 최대 10 이하인 값에 대해서만 오류가 아닌 것으로 인지하겠다는 의미가 된다.
+
+[Middleware callback function examples | Express.js Docs](https://expressjs.com/en/4x/api.html#middleware-callback-function-examples)
+
+### 유효성 검사 체이닝
+
+```javascript
+import { body } from "express-validator";
+
+app.post(
+  "/users",
+  [
+    body("name")
+      .isLength({ min: 2, max: 10 })
+      .withMessage("이름은 두 글자 이상, 열 글자 이하여야 합니다."),
+    body("age").isInt().withMessage("숫자를 입력해주세요."),
+    body("email").isEmail().withMessage("이메일 형식을 올바르게 입력하세요."),
+    body("job.name").notEmpty(),
+  ],
+  (req, res) => {
+    res.sendStatus(201);
+  }
+);
+```
+
+`.withMessage()`를 이용하면 앞서 작성한 유효성 룰에 대한 오류 메시지를 직접 지정해줄 수 있다. 한가지 값에 대해 여러 가지 유효성 규칙이 적용되어야 한다면 체이닝도 가능하다. 또, 배열 형태로 한 번에 여러 값에 대한 유효성 검사를 함께 수행할 수 있다.
+
+### param에 대한 유효성 검사
+
+```javascript
+import { body, param } from "express-validator";
+
+app.get(
+  "/:email",
+  param("email").isEmail().withMessage("이메일 형식을 올바르게 입력하세요."),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array() });
+    }
+    res.send("💌");
+  }
+);
+```
+
+만약 `req.body`가 아니라 `req.param`에서 얻어온 값에 대한 유효성 검사를 하고 싶다면 express-validator에서 `param()` 함수를 불러와서 적용하면 된다.
+
+### 실제로 유효성 검사가 적용되려면
+
+```javascript
+import { body, param, validationResult } from "express-validator";
+
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (errors.isEmpty()) {
+    return next();
+  }
+  return res.status(400).json({ message: errors.array()[0].msg });
+};
+
+app.get(
+  "/:email",
+  [
+    param("email").isEmail().withMessage("이메일 형식을 올바르게 입력하세요."),
+    validate,
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: errors.array() });
+    }
+    res.send("💌");
+  }
+);
+```
+
+실제로 유효성 검사가 적용되게 하려면 `validationResult` 함수를 이용하여 유효성 검사의 결과를 묶어서 에러가 있는 경우에는 오류를 던져준다고 명시할 필요가 있다. 위처럼 별도의 함수로 분리시켜두고 유효성 검사가 적용되는 곳마다 걸러주면 완성이다.
+
+### sanitization middleware
+
+sanitization이란 소독이라는 뜻을 가지고 있는데, 요청자 측에서 일반적으로 할 수 있는 실수들 중 서버 측에서 교정시켜 줄 수 있는 것들을 바로 잡아주는 행위를 의미한다. 요청 받은 데이터들을 데이터베이스에 저장하기 전에 일관성 있게 정렬한다는 의미로 받아들여도 괜찮을 것 같다. 앞서 살펴본 다른 유효성 검사 함수들과는 다르게 검증만 하는게 아니라 요청에 실제로 수정을 가한다는 점에서 차이점이 있다.
+
+```javascript
+app.post(
+  "/users",
+  [
+    body("name")
+      .trim()
+      .isLength({ min: 2, max: 10 })
+      .withMessage("이름은 두 글자 이상, 열 글자 이하여야 합니다."),
+    body("email")
+      .isEmail()
+      .withMessage("이메일 형식을 올바르게 입력하세요.")
+      .normalizeEmail(),
+    validate,
+  ],
+  (_, res) => {
+    res.sendStatus(201);
+  }
+);
+```
+
+예시로 살펴보자면 사용자가 실수 등으로 인풋에 공백이 삽입된 경우, 모든 공백을 없애주는 역할을 하는 함수가 `trim()`이다. 그리고 이메일의 첫 문자를 대문자로 보내는 경우도 있을 수 있는데, 이 때 이메일 형식을 노멀라이즈 해주는 함수인 `normalizeEmail()`도 활용할 수 있다.
+
+그 이외에도 전부 소문자로 바꿔주거나, Int 형태로 변환해주는 등의 다양한 API를 제공하고 있다.
+
+[Sanitization Chain API | express-validator](https://express-validator.github.io/docs/sanitization-chain-api)
