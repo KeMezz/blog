@@ -27,7 +27,7 @@ function Seo({ title, description, datePublished }: SeoProps) {
       <meta property="og:title" content={siteTitle} />
       <meta property="og:url" content={data.site?.siteMetadata?.siteUrl!} />
       <meta property="og:image" content={data.site?.siteMetadata?.image!} />
-      <meta property="og:type" content="blog" />
+      <meta property="og:type" content="website" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={siteTitle} />
       <meta name="twitter:image" content={data.site?.siteMetadata?.image!} />
