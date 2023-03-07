@@ -1,0 +1,174 @@
+---
+emoji: ✅
+title: React Navigation의 nesting navigators 타입 체크하기
+date: "2023-03-07"
+tags: ["개발", "react-native", "react-navigation", "typescript"]
+slug: 2303070
+---
+
+네스팅 구조가 없는 단순한 앱이라면 상관없겠지만 보통 어느 정도 복잡도가 있는 앱의 경우에는 보통 한 navigator 안에 다수의 navigator나 screen이 있는 경우가 많을텐데, 수많은 navigator와 screen들 사이에서 매번 모든 이름을 기억해내기도 힘든데다 오타의 위협(?)까지도 받을 수 있다. 이럴 때 Typescript를 사용하면 큰 도움을 받을 수 있다.
+
+솔직히 React Navigation은 타입 코드를 작성하는게 조금 번거롭고 알기 어렵다고 느꼈었는데 한 번 설정해두니 그렇게까지 복잡하지는 않았고, 나중에 새 프로젝트를 시작하게 되면 스스로 참고하고자 하는 목적으로 타입 체킹 부분에 대한 포스트를 남기게 되었다. 기본적으로 navigator와 screen에 대한 아주 기본적인 타입 체킹은 가능하다는 것을 전제로 설명하고 있어서, 먼저 [공식 문서](https://reactnavigation.org/docs/typescript/)를 훑어본 뒤에 이어서 읽어보면 더 좋을 것 같다.
+
+## 구조 설정
+
+- Root
+  - Auth
+    - Login
+    - SignUp
+  - BottomTab
+    - Home
+    - Profile
+  - Stack
+    - Camera
+    - Tips
+
+먼저 예시로 사용할 네비게이션의 전체 구조를 설정해보았다! Root라는 이름의 navigator 내부에 또 Auth, BottomTab, Stack의 세 가지 navigator가 있고, 이는 각각 2가지씩 screen을 가지고 있는 형태이다.
+
+## Type-checking the navigator
+
+### Root.tsx
+
+```typescript
+import { NavigatorScreenParams } from "@react-navigation/native";
+
+export type AuthParamList = {
+  SignIn: undefined;
+  SignUp: { user_id: string; user_pw: string };
+};
+
+export type BottomTabParamList = {
+  Home: undefined;
+  Profile: undefined;
+};
+
+export type StackParamList = {
+  Camera: undefined;
+  Tips: undefined;
+};
+
+export type RootParamList = {
+  Auth: NavigatorScreenParams<AuthParamList>;
+  BottomTab: NavigatorScreenParams<BottomTabParamList>;
+  Stack: NavigatorScreenParams<StackParamList>;
+};
+```
+
+Root가 모든 navigator를 감싸는 가장 큰 navigator라서, 알기 쉽게 Root.tsx에 모든 하위 navigator와 screen에 대한 타입을 export 할 수 있는 형태로 모아서 작성해주었다. (별도의 파일에 타입을 모아서 관리하고 있다면 물론 분리해도 상관없다!)
+
+주의할 점은 RootParamList를 작성할 때는 `NavigatorScreenParams`를 이용하여 제네릭으로 ParamList를 넘겨주는 방식으로 작성해주어야 한다. 이렇게 해야 나중에 screen 단위에서 다른 navigator 부모를 가진 screen으로 이동하고 싶을 때 전체적인 네비게이션 구조를 타입스크립트에게 설명할 수 있게 된다.
+
+```tsx
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+const NativeStack = createNativeStackNavigator<RootParamList>();
+
+const Root = () => {
+  return (
+    <NativeStack.Navigator>
+      <NativeStack.Screen name="Auth" component={Auth} />
+      <NativeStack.Screen name="BottomTab" component={BottomTab} />
+      <NativeStack.Screen name="Stack" component={Stack} />
+    </NativeStack.Navigator>
+  );
+};
+
+export default Root;
+```
+
+앞서 작성해준 RootParamList를 `create${navigatorName}Navigator`를 호출하며 제네릭 타입으로 넘겨주면 Root 네비게이터가 완성된다.
+
+### Auth.tsx, BottomTab.tsx, Stack.tsx
+
+```tsx
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "./Root";
+
+const Auth = () => {
+  const NativeStack = createNativeStackNavigator<AuthStackParamList>();
+  return (
+    <NativeStack.Navigator>
+      <NativeStack.Screen name="SignIn" component={SignIn} />
+      <NativeStack.Screen name="SignUp" component={SignUp} />
+    </NativeStack.Navigator>
+  );
+};
+
+export default Auth;
+```
+
+Root와 동일하게 앞서 선언했던 `ParamList`를 불러와서 제네릭으로 넘겨준다.
+
+## Type-checking the screens
+
+### 같은 navigator 내부에서만 움직일 경우
+
+```tsx
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { BottomTabParamList } from "../../navigation/Root";
+
+type Props = NativeStackScreenProps<BottomTabParamList, "Home">;
+
+const Home: React.FC<Props> = ({ navigation: { navigate } }) => {
+  const goToProfile = () => {
+    navigate("Profile");
+  };
+  return (
+    <View>
+      <Pressable onPress={goToProfile}>
+        <Text>Go To Profile</Text>
+      </Pressable>
+    </View>
+  );
+};
+
+export default Home;
+```
+
+일반적인 스크린의 타입을 지정할 때는 `${NavigatorName}ScreenProps`를 이용한다. 현재 screen이 속해 있는 navigator의 ParamList를 불러와주고, 두 번째 인자로 현재 screen의 이름을 적어주면 타입 체킹이 완료된다. 같은 navigator 내부에서만 이동하는 경우에는 이 정도만 해주어도 된다.
+
+### 다른 navigator로 움직일 경우
+
+```tsx
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList, RootParamList } from "../../navigation/Root";
+import { CompositeScreenProps } from "@react-navigation/native";
+
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<AuthParamList, "SignIn">,
+  NativeStackScreenProps<RootParamList>
+>;
+
+const SignIn: React.FC<Props> = ({ navigation: { navigate } }) => {
+  const onPressSignUp = () => {
+    navigate("SignUp");
+  };
+  const onPressLogin = () => {
+    navigate("BottomTab", { screen: "Home" });
+  };
+  return (
+    <View>
+      <Pressable onPress={onPressSignUp}>
+        <Text>Sign Up</Text>
+      </Pressable>
+      <Pressable onPress={onPressLogin}>
+        <Text>Login</Text>
+      </Pressable>
+    </View>
+  );
+};
+
+export default SignIn;
+```
+
+다른 navigator에 있는 screen으로 이동하려면 두 개의 타입을 합쳐서 넘겨주어야 하는데, 이 때는`CompositeScreenProps`를 이용해주면 된다. 첫번째 인자에는 앞서 같은 navigator 안에서 움직일 때 사용했던 `${NavigatorName}ScreenProps`를 통해 현재 screen의 prop을 설명해주고, 두 번째 인자로는 우리가 이동하고 싶은 navigator보다 한 단계 위의 navigator인 `RootParamList`를 불러와서 넣어준다.
+
+만약 프로젝트 구조가 예시보다 훨씬 더 복잡해서 Root 밑으로도 네스팅이 수 단계 더 있는 경우라면 `CompositeScreenProps`를 여러 번 이용하여 묶어주면 된다고 한다. 아래의 공식문서에 더 자세한 설명이 있으니 읽어보면 좋을 것 같다.
+
+[combining navigation props | React Navigation Docs](https://reactnavigation.org/docs/typescript/#combining-navigation-props)
+
+## 끝!
+
+웹 기반의 라우팅 라이브러리에 익숙해져 있어서 그런지 React Navigation을 사용하다보면 깊게 들어갈수록 어색하고 어렵다고 느끼는 부분이 많았던 것 같다.. 그래서 기능이나 용어에 대한 오해도 많이 생기고 특히나 타입 체킹에 혼란을 겪었었는데 앱이라는 환경에서만 쓸 수 있는 독특한 기능들에 대해 하나씩 이해해나가니까 느낌이 좀 잡히는 것 같다.
