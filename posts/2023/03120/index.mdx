@@ -1,0 +1,122 @@
+---
+emoji: 🔐
+title: Express 서버에 회원가입, 로그인 기능 구현하기
+date: "2023-03-12"
+tags: ["개발", "express", "node.js"]
+slug: 2303120
+---
+
+## bcrypt로 비밀번호 암호화 하여 저장하기
+
+```sh
+yarn add bcrypt
+```
+
+[node.bcrypt.js | Github](https://github.com/kelektiv/node.bcrypt.js)
+
+```javascript
+import bcrypt from "bcrypt";
+
+export const signup = async (req, res) => {
+  const { username, password, url } = req.body;
+  const found = await usersRepository.findByUsername(username);
+  if (found) {
+    return res.status(409).json({ message: `${username} already exists` });
+  }
+  const hashed = await bcrypt.hash(password, 12);
+  const userId = await usersRepository.create({
+    username,
+    password: hashed,
+    url,
+  });
+  res.status(201).json({ username });
+};
+```
+
+사용자로부터 회원가입 요청을 받을 때 bcrypt를 이용하여 클라이언트로부터 요청받은 비밀번호를 암호화하여 DB에 저장할 수 있다. `hash()` 함수를 이용하여 요청 받은 비밀번호와 salt 옵션을 지정해주면 빠르게 암호화가 가능하다.
+
+```javascript
+const LOGIN_ERROR = { message: "Invalid user or password" };
+
+export const login = async (req, res) => {
+  const { username, password } = req.body;
+  const user = await usersRepository.findByUsername(username);
+  if (!user) {
+    return res.status(401).json(LOGIN_ERROR);
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json(LOGIN_ERROR);
+  }
+  res.status(200).json({ username });
+};
+```
+
+이후 로그인 할 때마다 `compare()` 함수를 이용하여 암호화되어 저장된 비밀번호와 요청 받은 비밀번호를 비교하여 일치 여부를 판단해낼 수 있다. 일치하면 로그인을 시키고, 일치하지 않으면 로그인을 거절한다.
+
+## jwt 토큰 발급하기
+
+```sh
+yarn add jwtwebtoken
+```
+
+[node-jsonwebtoken | Github](https://github.com/auth0/node-jsonwebtoken)
+
+```javascript
+const createJwtToken = (id) => {
+  return jwt.sign({ id }, secretKey, { expiresIn: "2d" });
+};
+```
+
+jsonwebtoken 라이브러리를 이용하면 빠르게 토큰을 설정 및 생성하는 것이 가능하다. 첫 번째는 토큰에 저장할 오브젝트 형식의 정보를 넘겨주고, 두 번째 인자로는 고유의 secretKey를 넘겨주면 완성된다. 세 번째 인자에 만료 일자 등의 옵션을 넘겨주는 것도 가능하다.
+
+```javascript
+export const login = async (req, res) => {
+  const { username, password } = req.body;
+  const user = await usersRepository.findByUsername(username);
+  if (!user) {
+    return res.status(401).json({ message: "Invalid user or password" });
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid user or password" });
+  }
+  const token = createJwtToken(user.id);
+  res.status(200).json({ token, username });
+};
+```
+
+이처럼 회원가입 혹은 로그인 시에 토큰을 발급해주고, 이후의 요청부터는 클라이언트가 토큰을 가지고 있는지, 그 토큰이 유효한지에 대해 검사해주면 된다.
+
+## 토큰 검사하는 미들웨어 작성하기
+
+우리가 이용하는 서비스들은 흔히 로그인 하지 않은 사람은 수행할 수 없는 요청들이 많다. 그런 요청들에 대해 미리 토큰을 검사하는 미들웨어를 만들어두면 손쉽게 토큰 검사를 수행할 수 있게 된다.
+
+```javascript
+export const isAuth = async (req, res, next) => {
+  const authHeader = req.get("Authorization");
+  if (!(authHeader && authHeader.startsWith("Bearer "))) {
+    return res.status(401).json(AUTH_ERROR);
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, secretKey, async (error, decoded) => {
+    if (error) {
+      return res.status(401).json(AUTH_ERROR);
+    }
+    const user = await userRepository.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json(AUTH_ERROR);
+    }
+    req.userId = user.id;
+    next();
+  });
+};
+```
+
+이런 식으로 미들웨어를 만들어두고 필요한 요청마다 끼워주면 토큰 검사를 수행해준다. 요청 헤더에 Authorization이라는 항목이 있는지, 또 그 항목의 value가 Bearer로 시작하는지를 우선 검사하고, 이후 전달받은 토큰이 유효한지 `verify()` 함수를 통해서 검증을 수행한다. 만약 유효한 토큰일 경우에는 다음 미들웨어로 넘어가고, 그렇지 않은 경우에는 에러를 던지도록 했다.
+
+```javascript
+tweetRouter.get("/", isAuth, tweetController.getTweets);
+```
+
+이런 식으로 작성해둔 미들웨어는 라우터에 위와 같은 형태로 끼워서 사용해주면 된다. 만약 토큰이 없거나 불량한 토큰으로 요청을 했다면 `getTweets` 미들웨어까지 넘어가기 전에 `isAuth`에서 401 에러를 반환할 것이다.
