@@ -1,0 +1,159 @@
+---
+emoji: 🤯
+title: Next.js + TS + Prisma + PlanetScale = 🤯
+date: "2023-04-16"
+tags: ["개발", "next.js", "prisma", "mysql", "planetscale"]
+slug: 2304160
+---
+
+## Prisma란?
+
+[Prisma](https://www.prisma.io)는 Node.js 및 TypeScript ORM으로, SQL 같은 DB 언어를 사용하지 않고도 타입스크립트 코드와 DB 간에 서로 소통할 수 있게 하는 일종의 번역기 역할을 수행해주는 기술이다. 직접 SQL을 작성하는 것보다 제약 사항은 있겠으나, 타입스크립트의 타입 안정성과 함께 결합했을때 훌륭한 개발자 경험을 제공한다.
+
+### Prisma 설치
+
+```sh
+yarn add prisma -D
+npx prisma init
+```
+
+작업 중인 프로젝트에 prisma 패키지를 개발자 의존성으로 설치하고 `npx prisma init` 명령어를 작성해주면, `.env`와 `schema.prisma` 등 자동적으로 prisma 사용에 필요한 파일들을 설치해준다.
+
+### schema.prisma 설정
+
+```prisma
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+}
+```
+
+PlanetScale이 MySQL과 호환되는 서버리스 플랫폼이므로 prisma에서도 MySQL과 통신하도록 설정해줄 것이다. `schema.prisma`에서 provider를 기본 postgresql 대신 mysql로 변경해준다.
+
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  phone     String?  @unique
+  email     String?  @unique
+  avatar    String?
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+DB와 통신하려면 Prisma에게 우리가 다룰 데이터베이스의 모양을 설명해주어야 한다. User 모델을 예를 들어 작성해보았는데, DB에서 모델을 생성할 때 알고 있던 기본적인 룰이 그대로 적용되기 때문에 한 눈에 알아보기 쉽다! 반드시 모델 안에는 `@id`가 하나 있어야 하고, 필요하다면 `@default` 옵션을 통해 해당 컬럼의 기본값이나 기본값에 대한 규칙을 명시해줄 수 있다.
+
+## PlanetScale 설정
+
+[PlanetScale](https://planetscale.com)은 MySQL과 호환되는 서버리스 데이터베이스 플랫폼이다. 말 그대로 데이터베이스를 제공하는 플랫폼이지만 사용자가 직접 서버를 관리할 필요 없이 알아서 모든 서버에 대한 유지보수까지 해준다는 뜻이다. 다만 AWS의 RDS와는 달리 오픈소스 프로젝트인 [Vitness](https://planetscale.com/vitess)를 기반으로 알아서 scaling 도 해주며, 브랜치 기능과 전용 CLI 등의 기능을 통해 훌륭한 개발자 경험을 제공한다.
+
+### PlanetScale 설치
+
+```sh
+brew install planetscale/tap/pscale
+brew install mysql-client
+```
+
+PlanetScale 사용에 필요한 CLI와 MySQL Client를 설치해준다.
+
+```sh
+pscale auth login
+```
+
+PlanetScale 계정으로 로그인하여 계정 정보를 연동해준 다음,
+
+```sh
+pscale database create <database> --region ap-northeast
+```
+
+database create 명령어를 이용하여 데이터베이스를 생성해주면 된다.
+
+### PlanetScale 연결
+
+```sh
+pscale connect <database>
+```
+
+데이터베이스를 생성했다면, 이제 앞으로는 connect 명령어만 적어주면 알아서 127.0.0.1:3306 으로 연결된다. PlanetScale 자체적으로 일종의 보안 터널 연결을 생성해주어서 비밀번호 같은 걸 설정해줄 필요도 없이 CLI에 계정 등록만 되어있으면 명령어 한 번으로 바로 연결이 가능해진다.
+
+```env
+DATABASE_URL="mysql://127.0.0.1:3306/<database>"
+```
+
+이제 `.env` 파일에 가서 자동으로 생성된 postgresql url이 있던 걸 삭제하고, 위처럼 mysql url로 변경해주면 된다.
+
+### DB 푸쉬
+
+PlanetScale 서버에 DB를 push하기 전에, PlanetScale이 그 자체로 MySQL과 동일한 것을 제공하는게 아니라 'MySQL과 호환되는' 별개의 시스템이기 때문에 `schema.prisma`를 통해 몇 가지 손수 설정해주어야 하는 부분이 있다.
+
+```prisma
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+```
+
+PlanetScale을 그냥 사용하면 forgien key 제한을 지원하지 않기 때문에, 존재하지 않는 foreign key를 포함한 데이터를 생성해도 데이터베이스가 오류를 감지하지 못하는데, relationMode를 prisma로 설정하면 prisma를 통해 이러한 오류에서 보호받을 수 있게 된다.
+
+```sh
+npx prisma db push
+```
+
+pscale connect가 켜져 있는 상태에서 해당 명령어를 입력하면 데이터베이스가 서버에 성공적으로 푸쉬된다. PlanetScale 홈페이지에서 브랜치를 통해 푸쉬한 데이터베이스가 제대로 생성되었는지 확인할 수 있다.
+
+```sh
+npx prisma studio
+```
+
+Prisma Studio를 이용하면 GUI로 데이터베이스와 소통하는 것도 가능하다. 진짜 대박쓰..
+
+## Next.js로 백엔드 코드 작성
+
+```sh
+yarn add @prisma/client
+```
+
+아마 앞서 db push 하는 과정에서 같이 설치되었을수도 있지만, 만약 설치되지 않았다면 npm 패키지 @prisma/client를 설치해준다. Next.js와 prisma가 서로 통신하기 위해서 필요하다.
+
+```typescript
+import { PrismaClient } from "@prisma/client";
+
+const client = new PrismaClient();
+
+export default client;
+```
+
+client.ts 파일을 만들어서 api 코드에서 사용할 수 있도록 client를 export default 해준다.
+
+```typescript
+import { NextApiRequest, NextApiResponse } from "next";
+import client from "@libs/server/client";
+import withHandler, { ResponseType } from "@libs/server/withHandler";
+import { withApiSession } from "@libs/server/withSession";
+
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseType>
+) {
+  const profile = await client.user.findUnique({
+    where: { id: req.session.user?.id },
+  });
+  res.json({ success: true, profile });
+}
+
+export default withApiSession(
+  withHandler({ method: "GET", handlerFn: handler })
+);
+```
+
+이제 Next.js의 api 폴더 내에서 자유롭게 사용해주면 된다! 우리가 User라는 데이터베이스를 만들어서 푸쉬했기 때문에, client 안에도 user라는 객체가 생성되어 있는 것을 알 수 있다..!
+
+`client.user.create()` 혹은 `client.user.findUnique()` 등등.. Sequlize 같은 ORM과 크게 다르지 않은 사용성을 제공하고 있기 때문에 금방 적응하여 사용할 수 있었다.
+
+[Prisma 공식 문서](https://www.prisma.io/docs)
+
+## 정리하자면...
+
+노마드 코더를 통해 셋업을 배운 순서대로 겉핥기 식으로 간단히 적어보았는데.. 리액트를 통한 프론트엔드는 물론이고 손쉽게 Express와 닮은 백엔드 코드를 한 번에 작성할 수 있는 Next.js와, 타입스크립트와 사용했을 때 정적이고 보기도 너무 쉬운 prisma, 그리고 서버 관리를 걱정할 필요가 없고 최상의 개발자 경험까지도 제공하는 PlanetScale까지.. 셋의 조합을 통해 내가 했어야 할 많은 작업들이 얼마나 줄어들었는지를 즐기면서 개발하는 재미가 쏠쏠했다! 좀 더 덧붙일만한 재밌는 내용이 있다면 후속 포스트로 작성해봐야지.
