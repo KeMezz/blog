@@ -7,6 +7,10 @@
   블로그
 </h1>
 
+<div align="center">
+  <img alt="screenshot" src="./screenshots/1.png" />
+</div>
+
 ## 👻 소개
 
 저의 개발과 일상에 대한 기록을 담을 블로그의 코드 레포지토리입니다. Node.js 18+ 버전이 필요합니다.
