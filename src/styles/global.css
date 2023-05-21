@@ -15,6 +15,12 @@ body {
   padding: 1em;
   overflow: auto;
   font-size: 0.8em;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .gatsby-highlight {
+    max-width: 796px;
+  }
 }
 .gatsby-highlight pre[class*="language-"].line-numbers {
   padding: 0;
