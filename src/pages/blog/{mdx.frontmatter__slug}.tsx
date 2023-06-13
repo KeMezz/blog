@@ -31,11 +31,11 @@ const PostDetail = ({ data, children }: PostDetailProps) => {
         ) {
           toc
             ?.getElementsByClassName(`#${heading.id}`)[0]
-            .classList.add("text-cyan-500");
+            ?.classList.add("text-cyan-500");
         } else {
           toc
             ?.getElementsByClassName(`#${heading.id}`)[0]
-            .classList.remove("text-cyan-500");
+            ?.classList.remove("text-cyan-500");
         }
       });
     };
