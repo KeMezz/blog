@@ -56,9 +56,15 @@ function Layout({ children, disablePaddings, hideNav }: LayoutProps) {
             ©️ 2022-2023 Hyeongjin. All Rights Reserved.
           </p>
           <div className="flex gap-6 text-2xl text-gray-600 dark:text-gray-300">
-            <FaGithub />
-            <FaInstagram />
-            <FaTwitter />
+            <Link to="https://github.com/KeMezz">
+              <FaGithub />
+            </Link>
+            <Link to="https://www.instagram.com/_kemezz/">
+              <FaInstagram />
+            </Link>
+            <Link to="https://twitter.com/yZMKcxojM3QMmf2">
+              <FaTwitter />
+            </Link>
           </div>
         </div>
       </footer>
