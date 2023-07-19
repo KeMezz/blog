@@ -19,7 +19,7 @@ const IndexPage = () => {
         <div className="py-8 flex flex-col gap-4">
           <h1 className="text-lg lg:text-xl font-semibold">반갑습니다아!</h1>
           <p className="text-sm lg:text-base leading-6 lg:leading-8">
-            1년 차 주니어 개발자 정형진입니다. 프론트엔드를 위주로 개발하고
+            2년 차 주니어 개발자 정형진입니다. 프론트엔드를 위주로 개발하고
             있어요. "dotCache" 라는 이름의 이 블로그는 캐쉬처럼 빠르게 저장하고
             불러올 수 있는, 유용한 저장소가 되었으면 하는 마음으로 지은
             블로그입니다.
