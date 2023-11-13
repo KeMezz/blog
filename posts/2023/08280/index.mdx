@@ -1,0 +1,393 @@
+---
+emoji: 🕸️
+title: PHP의 기초
+date: "2023-08-28"
+tags: ["개발", "php"]
+slug: 2308280
+---
+
+## PHP 환경 설정
+
+```shell
+brew install --cask mamp
+brew install composer
+```
+
+mamp는 PHP 파일을 자동으로 서버로 만들어서 돌려주는 GUI 기반 툴 체인 같은 것이고, composer는 PHP의 패키지 관리자이다.
+
+## PHP 코드 작성
+
+```php
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>learn PHP</title>
+</head>
+<body>
+  <?php
+    echo 'Hello, World';
+  ?>
+</body>
+</html>
+```
+
+`<?php?>` 내부에 php 코드를 작성할 수 있으며, HTML 문법과 병기도 가능하다. 반드시 문장 끝에는 세미콜론을 붙여야 한다.
+
+## 변수 (変数)
+
+```php
+<?php
+$test = 123;
+$test = 456;
+echo $test;
+# 456
+```
+
+변수를 선언할때는 달러싸인을 이용하면 된다. 변수이기 때문에 덮어쓰는 것이 가능하다.
+
+```php
+<?php
+var_dump($test);
+```
+
+PHP는 자바스크립트나 파이썬처럼 다이나믹 타이핑(動的型付け)를 지원하는 언어이므로 변수의 타입을 명시해주지 않아도 알아서 추론한다. `var_dump` 함수를 이용하면 특정 변수의 타입을 출력해서 확인해볼수도 있다.
+
+```php
+<?php
+$test_1 = 123;
+$test_2 = 456;
+$test_3 = test_1 . test_2;
+
+echo $test_3
+# "123456"
+```
+
+`.` 을 이용하면 복수의 변수를 붙여서 표현할 수 있다. 다만 `.` 을 이용해서 합친 값은 원시값과 무관하게 무조건 string 형식으로 변환된다.
+
+## 상수 (定数)
+
+```php
+<?php
+const MAX = 10;
+echo MAX;
+# 10
+```
+
+상수는 const 키워드를 이용하여 표현할 수 있다. php에서 일반적으로 상수의 이름은 대문자로 짓는다.
+
+## 배열 (配列)
+
+```php
+<?php
+$array = [1, 2, 3];
+echo $array[0];
+```
+
+배열은 대괄호로 표현한다. 혹시나 echo로 출력하고 싶으면 내부 항목에 하나씩 접근할 필요가 있다.
+
+```php
+<?php
+$array = [1, 2, 'hello!'];
+echo '<pre>';
+var_dump($array);
+echo '</pre>';
+```
+
+var_dump로 살펴보면 배열 요소 하나하나에 대한 타입을 설명해준다. 앞뒤를 pre로 감싸면 개행하여 보기 쉽다.
+
+## 객체 (連想配列)
+
+```php
+<?php
+$array_member = [
+  'name' => '本田',
+  'height' => 170,
+  'hobby' => 'サッカー'
+];
+
+echo $array_member['name'];
+echo '<pre>';
+var_dump($array_member);
+echo '</pre>';
+```
+
+객체는 배열과 동일하게 대괄호로 만들며, key와 value를 `=>` 로 묶어준다.
+
+```php
+<?php
+$array_member_2 = [
+  '本田' => [
+    'height' => 170,
+    'hobby' => 'サッカー'
+  ],
+  '香川' => [
+    'height' => 165,
+    'hobby' => 'サッカー',
+  ],
+];
+```
+
+객체도 당연히 배열 안에 중첩할 수 있다.
+
+## 연산자
+
+PHP의 연산자는 자바스크립트와 거의 동일하다. `==` 과 `===` 의 차이도 동일하다. `&&`, `||`, 심지어 삼항연산자도 똑같다.
+
+## 조건문 (if문)
+
+```php
+<?php
+$test = '';
+if (empty($test)) {
+  echo '変数は空です。';
+}
+# 変数は空です。
+```
+
+조건문도 특별한거 없이 자바스크립트와 거의 동일하다. `empty()`는 대상 변수가 비었는지 확인하는 함수이다.
+
+## foreach
+
+```php
+<?php
+$members = [
+  'name' => '本田',
+  'height' => 170,
+  'hobby' => 'サッカー'
+];
+
+foreach ($members as $member) {
+  echo $member;
+}
+# 本田170サッカー
+
+foreach ($members as $key => $value) {
+  echo $key . 'は' . $value . 'です。';
+}
+# nameは本田です。heightは170です。hobbyはサッカーです。
+```
+
+foreach 구문은 위의 예시와 같이 쓴다. key와 value를 별개의 변수로 가져오는 것도 가능하다.
+
+```php
+<?php
+$members_2 = [
+  '本田' => [
+    'height' => 170,
+    'hobby' => 'サッカー'
+  ],
+  '香川' => [
+    'height' => 165,
+    'hobby' => '料理',
+  ]
+];
+foreach ($members_2 as $name => $properties) {
+  foreach ($properties as $property => $value) {
+    echo $name . 'の' . $key . 'は' . $value . 'です。 ' . '<br />';
+  }
+}
+# 本田のheightは170です。
+# 本田のhobbyはサッカーです。
+# 香川のheightは165です。
+# 香川のhobbyは料理です
+```
+
+배열 속 객체의 경우에는 foreach 구문을 중첩하여 표현할 수도 있다.
+
+## for, while
+
+```php
+<?php
+for ($i = 0; $i < 10; $i++) {
+  echo $i;
+}
+# 0123456789
+```
+
+for문도 자바스크립트와 거의 동일하다. break와 continue도 사용할 수 있다.
+
+```php
+<?php
+$j = 0;
+while ($j < 5) {
+  echo $j;
+  $j++;
+}
+# 01234
+```
+
+while과 do while도 완전 똑같다. 반복 횟수가 정해져 있는 경우에는 for를 쓰고, 정해져 있지 않은 경우에는 while을 사용한다.
+
+## switch
+
+```php
+<?php
+$data = 1;
+switch ($data) {
+  case 1:
+    echo '1です。';
+    break;
+  case 2:
+    echo '2です。';
+    break;
+  case 3:
+    echo '3です。';
+    break;
+  default:
+    echo '1-3ではありません。';
+}
+# 1です。
+```
+
+case별로 break를 꼭 걸어주어야 한다. 그렇지 않으면 다음 구문으로 계속 넘어가서 실행한다. switch 문에서의 case 구문 뒤에 작성하는 조건은 기본값으로 `==` 비교를 뜻하기 때문에 엄격한 비교가 힘들다. 대부분의 경우, 매번 break 쓰는 것도 귀찮고 대상 조건과의 엄격한 비교도 어려우므로 어지간하면 if문으로 작성하는게 낫다.
+
+## 함수
+
+```php
+<?php
+function getComment($string)
+{
+  echo $string;
+}
+getComment('コメント');
+
+function sum($int1, $int2)
+{
+  return $int1 + $int2;
+}
+
+echo sum(1, 2);
+
+# コメント3
+```
+
+함수도 자바스크립트랑 거진 동일하다.
+
+## 내장함수 (組み込み関数)
+
+### strlen, mb_strlen
+
+```php
+<?php
+$japanese = 'あいうえお';
+$korean = '가나다라';
+echo strlen($japanese), '<br />';
+echo strlen($korean), '<br />';
+echo mb_strlen($japanese);
+# 15
+# 12
+# 5
+```
+
+`strlen` 을 이용하면 대상 스트링의 바이트 수를 반환한다. 영어는 한 글자에 1바이트이지만 일본어나 한글은 한 글자에 3바이트이다. 만약 바이트 수와 상관없이 실제 문자 길이를 알고 싶다면 멀티 바이트 함수인 `mb_strlen()` 을 이용하면 된다.
+
+### str_replace
+
+```php
+<?php
+$str = '文字列を置換します。';
+echo str_replace('置換', 'ちかん', $str);
+# 文字列をちかんします。
+```
+
+`str_replace()` 함수는 문자열을 치환할 수 있다. 대상 문자열, 치환할 문자열, 대상 변수 순으로 매개변수를 넘기면 된다.
+
+### explode
+
+```php
+<?php
+$str = '指定文字列で、分割します。';
+echo '<pre>';
+var_dump(explode('、', $str));
+echo '</pre>';
+
+# array(2) {
+#   [0]=>
+#   string(18) "指定文字列で"
+#   [1]=>
+#   string(18) "分割します。"
+# }
+```
+
+`explode()` 함수는 특정 문자열 기준으로 쪼개서 배열로 반환해준다. 자바스크립트의 split과 비슷하다고 보면 된다. 반대로 합치고 싶을 땐 `implode()` 함수를 사용하면 된다. 이건 join과 비슷하다고 보면 될 것 같다.
+
+### preg_match
+
+```php
+<?php
+$str = '特定の文字列が含まれるか確認する';
+echo preg_match('/文字列/', $str);
+# 1
+```
+
+`preg_match` 함수는 정규표현식을 통해 대상과 일치하는 항목이 몇 개나 있는지를 반환하는 함수이다.
+
+### substr
+
+```php
+<?php
+echo substr('abcde', 2);
+# cde
+
+echo mb_substr('가나다라마바사', 4);
+# 마바사
+```
+
+substr 함수는 특정 인덱스까지는 제외 후, 그 이후의 문자열만을 출력하는 함수이다. 이 함수 또한 멀티바이트 문제가 있으므로 일본어나 한국어에는 그냥 사용하다가 글자가 박살날 수 있으므로, 그럴때는 `mb_substr` 함수를 사용해준다.
+
+### array_push
+
+```php
+<?php
+$array = ['apple', 'orange'];
+array_push($array, 'grape', 'kiwi');
+
+echo '<pre>';
+var_dump($array);
+echo '</pre>';
+
+# array(4) {
+#   [0]=>
+#   string(5) "apple"
+#   [1]=>
+#   string(6) "orange"
+#   [2]=>
+#   string(5) "grape"
+#   [3]=>
+#   string(4) "kiwi"
+# }
+```
+
+array_push를 이용하면 대상 배열에 값을 푸쉬할 수 있다. 매개변수를 여러 개 써서 원하는 만큼 추가할 수 있다.
+
+[https://www.php.net/manual/en/](https://www.php.net/manual/en/)
+
+## php 함수의 스코프
+
+전역변수와 지역변수의 개념은 자바스크립트와 동일하게 적용된다. 클로저의 개념도 똑같이 따라온다.
+
+## 파일 불러오기
+
+require, require_once, include, include_once 등의 함수가 있는데, require의 경우에는 불러오지 못하면 바로 에러가 발생하고, include는 불러오지 못했더라도 경고만 주고 이어서 다른 코드를 불러온다.
+
+```php
+<?php
+require 'common.php';
+
+echo $commonVariable;
+commonTest();
+```
+
+require 문으로 불러오고 나면, 대상 파일에 있는 변수들을 자유롭게 사용할 수 있게된다.
+
+```php
+<?php
+echo __DIR__, '<br />';
+echo __FILE__;
+# /Applications/MAMP/htdocs/learnPhp
+# /Applications/MAMP/htdocs/learnPhp/index.php
+```
+
+`__DIR__` 은 현재 본인이 있는 디렉토리를 나타내고, `__FILE__` 은 현재 본인이 작업하고 있는 파일명까지 나타낸다.

@@ -1,0 +1,275 @@
+---
+emoji: 🙌
+title: PHP의 세션과 고차 함수
+date: "2023-09-04"
+tags: ["개발", "php"]
+slug: 2309040
+---
+
+## 쿠키와 세션
+
+쿠키와 세션은 모두 자동 로그인 등의 세션 유지에 사용하게 된다. 다만 쿠키는 유저의 브라우저에 저장되는 정보이고, 세션은 서버 측에 저장되는 정보라는 차이가 있다.
+
+### 세션과 쿠키 생성
+
+```php
+<?php
+session_start();
+```
+
+세션을 이용할 때는 반드시 `session_start()` 함수를 실행해준다.
+
+```php
+<?php
+if (!isset($_SESSION['visited'])) {
+    echo '初回訪問です';
+    $_SESSION['visited'] = 1;
+    $_SESSION['date'] = date('c');
+} else {
+    $visited = $_SESSION['visited'];
+    $visited++;
+    $_SESSION['visited'] = $visited;
+
+    echo $_SESSION['visited'].'回目の訪問です<br />';
+    if (isset($_SESSION['date'])) {
+        echo '前回訪問は' . $_SESSION['date'] . 'です';
+        $_SESSION['date'] = date('c');
+    }
+}
+
+echo '<pre>';
+var_dump($_SESSION);
+echo '</pre>';
+
+echo '<pre>';
+var_dump($_COOKIE);
+echo '</pre>';
+```
+
+간단하게 세션을 이용하여 방문 횟수와 마지막 방문 일자를 표시하는 사이트를 만들었다. `$_COOKIE` 를 출력해보면 세션을 생성하는 순간 내부에 세션 ID(PHPSESSID)가 담긴 쿠키도 같이 생성되는 것을 알 수 있다.
+
+### 세션과 쿠키 파기
+
+```php
+<?php
+echo 'セッション破棄しました';
+$_SESSION = [];
+
+if (isset($_COOKIE['PHPSESSID'])) {
+    setCookie('PHPSESSID', '', time() - 1800, '/');
+}
+
+session_destroy();
+
+echo 'セッション<br />';
+echo '<pre>';
+var_dump($_SESSION);
+echo '</pre>';
+
+echo 'クッキー<br />';
+echo '<pre>';
+var_dump($_COOKIE);
+echo '</pre>';
+```
+
+세션과 쿠키를 파기할 때는 빈 값을 넣어주고 `session_destroy()`를 실행해주면 된다. 쿠키에 아직 세션 아이디가 출력되는 것처럼 보일 수는 있지만 요청에만 있고 실제 쿠키를 살펴보면 비워져 있는 것을 확인할 수 있다.
+
+[http://tadworks.jp/archives/1147](http://tadworks.jp/archives/1147)
+
+## 매개변수의 기본값 설정법
+
+```php
+<?php
+
+ini_set("display_errors", 1);
+error_reporting(E_ALL);
+
+function defaultValue($string = '本田')
+{
+    echo $string . 'です。';
+}
+
+defaultValue();
+# 本田です。
+echo '<br />';
+
+defaultValue('テスト');
+# テストです。
+```
+
+함수에서 매개변수 선언할 때 뒤에 `=` 으로 값을 지정해주면, 매개변수가 들어오지 않았을 경우의 기본값을 설정하는 것이 가능하다.
+
+## 타입 힌트 기능
+
+```php
+<?php
+echo 'タイプヒンティングテスト' . '<br />';
+
+/**
+ * @param $string
+ */
+function noTypeHint($string)
+{
+    var_dump($string);
+}
+
+noTypeHint(['テスト']);
+echo '<br />';
+# array(1) { [0]=> string(9) "テスト" }
+
+function typeTest(string $string)
+{
+    var_dump($string);
+}
+
+typeTest(['配列文字']);
+# Fatal error: Uncaught TypeError: Argument 1 passed to typeTest()
+# must be of the type string, array given, called in...
+```
+
+함수의 매개변수 앞에 타입을 명시해주면 의도한 것과 다른 타입이 들어왔을 때 실행되지 못하게 보호해줄 수 있다.
+
+```php
+<?php
+declare(strict_types=1);
+```
+
+`declare(strict_types=1)` 를 설정하면 무조건 함수의 매개변수에 타입을 지정해야지만 작동하도록 강제하는 것도 가능하다. 이렇게 설정하면 `noTypeHint()` 함수도 작동하지 않는다.
+
+## 가변 변수
+
+```php
+<?php
+
+function combine(string ...$name): string
+{
+    $combinedName = '';
+
+    for ($i = 0; $i < count($name); $i++) {
+        $combinedName .= $name[$i];
+        if ($i != count($name) - 1) {
+            $combinedName .= ' ・ ';
+        }
+    }
+    return $combinedName;
+}
+
+$lName = '名前';
+$fName = '苗字';
+$name1 = combine($fName, $lName);
+
+echo $name1;
+echo '<br />';
+
+$variableLength = combine('テスト1', 'テスト2', 'テスト3');
+echo $variableLength;
+```
+
+매개변수 선언 시에 앞에 `…` 을 붙이면 복수의 매개변수를 일일히 작성하지 않고도 전부 불러올 수 있으며, 매개변수의 개수에 제한을 두지 않고 일괄된 액션을 취할 수 있다. 또한, 함수 뒤에 `: {typename}` 을 작성해주면 리턴 타입도 지정해줄 수 있다.
+
+## 콜백 함수
+
+```php
+<?php
+
+$parameters = ['    空白あり  ', '   配列  ', '  空白あり    '];
+
+echo '<pre>';
+var_dump($parameters);
+echo '</pre>';
+
+$trimedParameters = array_map('trim', $parameters);
+echo '<pre>';
+var_dump($trimedParameters);
+echo '</pre>';
+// array(3) {
+//   [0]=>
+//   string(12) "空白あり"
+//   [1]=>
+//   string(6) "配列"
+//   [2]=>
+//   string(12) "空白あり"
+// }
+```
+
+php에서는 매개변수에 스트링 형태로 함수를 넣을 수 있다. `array_map` 의 첫 번째 인자가 대표적인데, 위의 경우 `’trim’` 이라는 문자열을 넘기면 배열 안을 순회하면서 공백을 모두 삭제시켜주는 역할을 한다. 단순히 `array_map`의 내장 함수를 불러온 것이 아니라, `trim`이라는 이름의 별도의 함수를 실행시키도록 한 것이다.
+
+```php
+<?php
+
+function combineSpace(string $firstName, string $lastName): string
+{
+    return $lastName . ' ' . $firstName;
+}
+
+$nameParam = ['名前', '苗字'];
+
+function useCombine(array $name, callable $func)
+{
+    $concatName = $func(...$name);
+    print($func.'関数での結合結果：' . $concatName . '<br />');
+}
+
+useCombine($nameParam, 'combineSpace');
+```
+
+이번 예시는 호출부 함수 구조까지 구현한 형태이다. useCombine이라는 함수는 두 번째 인자로 callable을 받는데, 실행할 때 다른 함수의 이름을 스트링 형태로 넘기면, useCombine이 실행 과정에서 알아서 함수 이름을 찾아서 대입해서 실행해준다. 일종의 콜백 함수가 성립된다.
+
+## 메소드 체인
+
+```php
+<?php
+
+class Product
+{
+    private $price = 1000;
+
+    public function getPrice()
+    {
+        return $this->price;
+    }
+}
+
+class Cart
+{
+    private $products = [];
+
+    public function addItem($product)
+    {
+        $this->products[] = $product;
+    }
+
+    public function getItem($index)
+    {
+        return $this->products[$index];
+    }
+}
+
+$cart = new Cart();
+$cart->addItem(new Product());
+```
+
+복수의 클래스가 연결되어 있는 경우, 예문처럼 Cart의 메소드를 이용해 내부에 다른 클래스의 인스턴스를 내장할 수 있는 경우에 메소드를 체이닝하는 것이 가능하다.
+
+```php
+<?php
+// 通常メソッド
+$gotItem = $cart->getItem(0);
+$price = $gotItem->getPrice();
+
+echo '<br />';
+echo '通常メソッド' . '<br />';
+echo $price;
+echo '<br />';
+
+// メソッドチェーン
+$price = $cart->getItem(0)->getPrice();
+
+echo 'メソッドチェーン' . '<br />';
+echo $price;
+echo '<br />';
+```
+
+위의 방법은 일반적으로 메소드를 이용하는 방법이다. 인스턴스 안에서 하나씩 메소드를 꺼내 사용하고 그 리턴 값을 변수에 매번 담아준 뒤 출력한다.
+
+두 번째 방법은 이를 간소화하여, 어차피 첫 번째 메소드의 결과값이 다른 클래스 형태임을 알고 있기 때문에 바로 화살표를 더 붙여서 메소드를 체이닝 할 수 있다는 개념이다.
