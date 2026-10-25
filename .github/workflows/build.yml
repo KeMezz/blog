@@ -1,0 +1,30 @@
+name: Static site verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node: [22, 24]
+    env:
+      GATSBY_TELEMETRY_DISABLED: "1"
+      GATSBY_CPU_COUNT: "2"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - run: yarn install --frozen-lockfile --ignore-scripts --non-interactive
+      - run: yarn build
+      - run: yarn typecheck
+      - run: yarn test:images

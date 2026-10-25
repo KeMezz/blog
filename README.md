@@ -13,7 +13,9 @@
 
 ## 👻 소개
 
-저의 개발과 일상에 대한 기록을 담을 블로그의 코드 레포지토리입니다. Node.js 18+ 버전이 필요합니다.
+저의 개발과 일상에 대한 기록을 담을 블로그의 코드 레포지토리입니다. Node.js 22 또는 24와 Yarn 1.22.22가 필요합니다. `.node-version`은 Node.js 24를 선택합니다.
+
+검증은 `yarn install --frozen-lockfile --ignore-scripts`, `yarn build`, `yarn typecheck`, `yarn test:images` 순서로 실행합니다. `yarn build`가 GraphQL 타입을 생성합니다.
 
 ## 🔧 주요 기술
 
