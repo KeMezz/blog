@@ -8,7 +8,7 @@ const config: GatsbyConfig = {
     image: `/thumbnail.jpg`,
     icon: `/icon.png`,
   },
-  graphqlTypegen: true,
+  graphqlTypegen: { generateOnBuild: true },
   plugins: [
     `gatsby-plugin-postcss`,
     `gatsby-plugin-image`,
